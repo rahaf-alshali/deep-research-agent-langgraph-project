@@ -54,3 +54,4 @@ project_starter/
 uv sync                                  # install dependencies
 uv run jupyter lab research_agent.ipynb  # open the project
 ```
+Submitted by: Rahaf Alsahli — academy: @SDAIAAcademy
