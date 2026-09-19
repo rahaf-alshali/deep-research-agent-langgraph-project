@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <meta name="theme-color" content="#15131a" />
+  <title>مغامرة الجمع بالواقع المعزز</title>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.8/aframe/build/aframe-ar.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;font-family:"Tahoma","Arial",sans-serif}
+    body{touch-action:none}
+    a-scene{position:fixed!important;inset:0!important;width:100%!important;height:100%!important}
+    .ui{position:fixed;inset:0;z-index:20;pointer-events:none;color:#fff}
+    .topbar{position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .pill{background:rgba(20,18,28,.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.22);box-shadow:0 6px 24px rgba(0,0,0,.18);border-radius:999px;padding:10px 14px;font-weight:800;font-size:15px;text-align:center}
+    #instruction{max-width:min(74vw,520px);margin:auto}
+    .iconbtn,.smallbtn,.primary{pointer-events:auto;border:0;color:white;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .iconbtn{width:46px;height:46px;border-radius:50%;font-size:20px;background:rgba(20,18,28,.72);border:1px solid rgba(255,255,255,.22)}
+    .bottom{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:12px;right:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+    .smallbtn{border-radius:999px;padding:10px 15px;background:rgba(20,18,28,.72);border:1px solid rgba(255,255,255,.22);font-size:14px}
+    .smallbtn.accent{background:rgba(190,62,130,.86)}
+    .smallbtn.green{background:rgba(27,142,98,.9)}
+    .start{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 25%,rgba(192,80,146,.36),rgba(20,17,28,.93) 55%,#0d0c10)}
+    .startcard{width:min(92vw,480px);padding:28px 22px;border-radius:30px;text-align:center;background:rgba(255,255,255,.96);color:#25212b;box-shadow:0 28px 80px rgba(0,0,0,.35)}
+    .start h1{font-size:29px;margin:0 0 10px;color:#7b2c68}
+    .eq{direction:ltr;font-size:42px;font-weight:900;margin:18px 0;color:#243eaa}
+    .start p{line-height:1.8;margin:0 0 18px;color:#5d5663}
+    .primary{width:100%;padding:15px 18px;border-radius:18px;font-size:19px;background:linear-gradient(135deg,#a73387,#6940b8);box-shadow:0 9px 24px rgba(128,48,133,.28)}
+    .linkbtn{pointer-events:auto;border:0;background:none;color:#77356b;font-weight:800;margin-top:14px;text-decoration:underline}
+    .modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.66);display:none;align-items:center;justify-content:center;padding:18px;overflow:auto}
+    .modal.show{display:flex}
+    .modalbox{background:white;color:#27232b;border-radius:24px;width:min(95vw,620px);padding:20px;max-height:92vh;overflow:auto;text-align:center}
+    .modalbox h2{margin:0 0 12px;color:#7b2c68}
+    .modalbox p{line-height:1.75}
+    .markerCard{width:min(100%,520px);margin:0 auto;background:white;border:4px solid #111;padding:18px}
+    .markerCard img{display:block;width:min(72vw,360px);max-width:100%;margin:12px auto}
+    .markerCard .math{direction:ltr;font-size:44px;font-weight:900;margin:8px 0;color:#111}
+    .actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+    .actions button{border:0;border-radius:14px;padding:11px 16px;font-weight:800}
+    .print{background:#7b2c68;color:#fff}.close{background:#eee;color:#222}
+    #success{position:fixed;z-index:55;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;background:rgba(12,10,18,.25)}
+    #success.show{display:flex}
+    .successCard{background:rgba(255,255,255,.95);color:#222;border-radius:30px;padding:28px 24px;text-align:center;box-shadow:0 26px 80px rgba(0,0,0,.35);border:3px solid #e7c55b}
+    .successCard .big{direction:ltr;font-size:48px;font-weight:900;color:#187a52}.successCard h2{font-size:28px;color:#8b2f75;margin:9px 0}
+    .successCard button{pointer-events:auto;border:0;border-radius:15px;padding:12px 18px;background:#7b2c68;color:white;font-weight:800}
+    #cameraHelp{display:none;position:fixed;top:72px;left:15px;right:15px;z-index:45;background:#fff3cd;color:#5f4a00;padding:11px;border-radius:14px;text-align:center;font-weight:700}
+    @media print{
+      body>*:not(#cardModal){display:none!important}
+      #cardModal{display:block!important;position:static!important;background:white!important;padding:0!important}
+      #cardModal .modalbox{box-shadow:none!important;max-height:none!important;width:100%!important}
+      #cardModal h2,#cardModal .actions{display:none!important}
+      .markerCard{width:190mm;height:270mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:5mm solid #111}
+      .markerCard img{width:125mm!important}
+      .markerCard .math{font-size:25mm!important}
+      .markerCard p{font-size:7mm!important}
+    }
+  </style>
+</head>
+<body>
+  <div id="start" class="start">
+    <div class="startcard">
+      <h1>مغامرة الجمع بالواقع المعزز</h1>
+      <p>وجّهي كاميرا الآيباد أو الجوال نحو بطاقة النشاط، ثم حرّكي مكعبات دينز بيدك لإعادة التجميع.</p>
+      <div class="eq">268 + 157</div>
+      <button id="startBtn" class="primary">ابدئي النشاط</button>
+      <button id="cardBtnStart" class="linkbtn">عرض بطاقة النشاط للطباعة</button>
+    </div>
+  </div>
+
+  <div id="cameraHelp">اسمحي للمتصفح باستخدام الكاميرا، ثم وجّهيها نحو بطاقة Hiro.</div>
+
+  <div class="ui">
+    <div class="topbar">
+      <button id="restartBtn" class="iconbtn" title="إعادة">↻</button>
+      <div id="instruction" class="pill">وجّهي الكاميرا نحو البطاقة</div>
+      <button id="helpBtn" class="iconbtn" title="مساعدة">؟</button>
+    </div>
+    <div class="bottom">
+      <button id="cardBtn" class="smallbtn">بطاقة النشاط</button>
+      <button id="freeBtn" class="smallbtn accent" style="display:none">استخدمي الوضع الحر</button>
+      <button id="continueBtn" class="smallbtn green" style="display:none">التالي</button>
+    </div>
+  </div>
+
+  <div id="success">
+    <div class="successCard">
+      <div style="font-size:46px">⭐</div>
+      <div class="big">268 + 157 = 425</div>
+      <h2>أحسنتِ يا بطلة الجمع!</h2>
+      <button id="againBtn">أعيدي النشاط</button>
+    </div>
+  </div>
+
+  <div id="cardModal" class="modal">
+    <div class="modalbox">
+      <h2>بطاقة النشاط</h2>
+      <div class="markerCard">
+        <p style="font-weight:900;margin:0">وجّهي الكاميرا نحو البطاقة</p>
+        <img src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png" alt="Hiro marker">
+        <div class="math">268 + 157</div>
+        <p>بعد ظهور المكعبات فوق البطاقة، اسحبيها إلى منطقة التجميع.</p>
+      </div>
+      <div class="actions">
+        <button class="print" onclick="window.print()">طباعة البطاقة</button>
+        <button class="close" data-close="cardModal">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="helpModal" class="modal">
+    <div class="modalbox">
+      <h2>طريقة الاستخدام</h2>
+      <p>١) اطبعي بطاقة النشاط.<br>٢) افتحي النشاط واسمحي بالكاميرا.<br>٣) وجّهي الكاميرا نحو علامة Hiro السوداء.<br>٤) عندما تظهر مكعبات دينز فوق البطاقة، اسحبيها بإصبعك إلى الدائرة المضيئة في الوسط.<br>٥) عند تجميع عشر وحدات ستتحول تلقائيًا إلى المنزلة الأعلى.</p>
+      <div class="actions"><button class="close" data-close="helpModal">فهمت</button></div>
+    </div>
+  </div>
+
+  <a-scene id="scene"
+    embedded
+    vr-mode-ui="enabled:false"
+    renderer="antialias:true; alpha:true; colorManagement:true; precision:mediump"
+    arjs="sourceType:webcam; facingMode:environment; debugUIEnabled:false; detectionMode:mono_and_matrix; matrixCodeType:3x3;"
+  >
+    <a-marker id="hiroMarker" preset="hiro" emitevents="true">
+      <a-entity id="markerRoot"></a-entity>
+    </a-marker>
+    <a-entity id="arCamera" camera>
+      <a-entity id="freeRoot" visible="false" position="0 -0.33 -1.25" rotation="-30 0 0" scale="1.15 1.15 1.15"></a-entity>
+    </a-entity>
+  </a-scene>
+
+  <script>
+  (function(){
+    "use strict";
+
+    var scene = document.getElementById("scene");
+    var marker = document.getElementById("hiroMarker");
+    var markerRoot = document.getElementById("markerRoot");
+    var freeRoot = document.getElementById("freeRoot");
+    var instruction = document.getElementById("instruction");
+    var freeBtn = document.getElementById("freeBtn");
+    var continueBtn = document.getElementById("continueBtn");
+    var success = document.getElementById("success");
+    var cameraHelp = document.getElementById("cameraHelp");
+
+    var started = false;
+    var mode = "marker";
+    var markerSeen = false;
+    var stage = 1;
+    var placed = 0;
+    var regrouped = false;
+    var draggableEls = [];
+    var dragging = null;
+    var dragPlane = null;
+    var raycaster = new THREE.Raycaster();
+    var pointer = new THREE.Vector2();
+    var dragOffset = new THREE.Vector3();
+    var activeY = 0.055;
+    var ROOT_SCALE = 1;
+
+    function activeRoot(){ return mode === "marker" ? markerRoot : freeRoot; }
+
+    function setInstruction(text){ instruction.textContent = text; }
+
+    function showModal(id){ document.getElementById(id).classList.add("show"); }
+    function hideModal(id){ document.getElementById(id).classList.remove("show"); }
+
+    document.querySelectorAll("[data-close]").forEach(function(btn){
+      btn.addEventListener("click", function(){ hideModal(btn.getAttribute("data-close")); });
+    });
+    document.getElementById("cardBtn").onclick = function(){ showModal("cardModal"); };
+    document.getElementById("cardBtnStart").onclick = function(){ showModal("cardModal"); };
+    document.getElementById("helpBtn").onclick = function(){ showModal("helpModal"); };
+
+    document.getElementById("startBtn").onclick = function(){
+      started = true;
+      document.getElementById("start").style.display = "none";
+      resetActivity();
+      cameraHelp.style.display = "block";
+      setTimeout(function(){ cameraHelp.style.display = "none"; }, 5000);
+      setTimeout(function(){
+        if(started && mode === "marker" && !markerSeen) freeBtn.style.display = "inline-block";
+      }, 7000);
+    };
+
+    document.getElementById("restartBtn").onclick = resetActivity;
+    document.getElementById("againBtn").onclick = function(){ success.classList.remove("show"); resetActivity(); };
+
+    freeBtn.onclick = function(){
+      mode = "free";
+      markerRoot.setAttribute("visible","false");
+      freeRoot.setAttribute("visible","true");
+      freeBtn.style.display = "none";
+      buildStage(stage);
+      setInstruction(stageInstruction());
+    };
+
+    continueBtn.onclick = function(){
+      continueBtn.style.display = "none";
+      stage += 1;
+      regrouped = false;
+      placed = 0;
+      buildStage(stage);
+      setInstruction(stageInstruction());
+    };
+
+    marker.addEventListener("markerFound", function(){
+      markerSeen = true;
+      if(mode === "marker"){
+        markerRoot.setAttribute("visible","true");
+        freeBtn.style.display = "none";
+        if(started) setInstruction(stageInstruction());
+      }
+    });
+
+    marker.addEventListener("markerLost", function(){
+      markerSeen = false;
+      if(started && mode === "marker"){
+        setInstruction("أعيدي توجيه الكاميرا نحو البطاقة");
+        setTimeout(function(){ if(!markerSeen && mode === "marker") freeBtn.style.display = "inline-block"; }, 3500);
+      }
+    });
+
+    function resetActivity(){
+      stage = 1;
+      placed = 0;
+      regrouped = false;
+      success.classList.remove("show");
+      continueBtn.style.display = "none";
+      mode = "marker";
+      freeRoot.setAttribute("visible","false");
+      markerRoot.setAttribute("visible","true");
+      freeBtn.style.display = markerSeen ? "none" : "inline-block";
+      buildStage(1);
+      setInstruction(markerSeen ? stageInstruction() : "وجّهي الكاميرا نحو البطاقة");
+    }
+
+    function stageInstruction(){
+      if(stage === 1) return "اسحبي الآحاد إلى منطقة التجميع";
+      if(stage === 2) return "اسحبي العشرات إلى منطقة التجميع";
+      if(stage === 3) return "اسحبي المئات إلى منطقة التجميع";
+      return "";
+    }
+
+    function clearRoot(root){
+      while(root.firstChild) root.removeChild(root.firstChild);
+      draggableEls = [];
+      dragging = null;
+    }
+
+    function addBase(root){
+      var floor = document.createElement("a-plane");
+      floor.setAttribute("rotation","-90 0 0");
+      floor.setAttribute("width","1.05");
+      floor.setAttribute("height","0.82");
+      floor.setAttribute("position","0 0 0");
+      floor.setAttribute("material","color:#f8f5fb; opacity:0.10; transparent:true; side:double");
+      root.appendChild(floor);
+
+      var zone = document.createElement("a-ring");
+      zone.setAttribute("rotation","-90 0 0");
+      zone.setAttribute("radius-inner","0.145");
+      zone.setAttribute("radius-outer","0.17");
+      zone.setAttribute("position","0 0.012 -0.15");
+      zone.setAttribute("material","color:#ffdf5f; opacity:0.85; transparent:true; emissive:#ffcc36; emissiveIntensity:0.5; side:double");
+      root.appendChild(zone);
+
+      var glow = document.createElement("a-circle");
+      glow.setAttribute("rotation","-90 0 0");
+      glow.setAttribute("radius","0.14");
+      glow.setAttribute("position","0 0.008 -0.15");
+      glow.setAttribute("material","color:#fff1a8; opacity:0.18; transparent:true; side:double");
+      root.appendChild(glow);
+
+      var ambient = document.createElement("a-light");
+      ambient.setAttribute("type","ambient");
+      ambient.setAttribute("intensity","0.85");
+      ambient.setAttribute("color","#ffffff");
+      root.appendChild(ambient);
+
+      var light = document.createElement("a-light");
+      light.setAttribute("type","directional");
+      light.setAttribute("intensity","0.9");
+      light.setAttribute("color","#fff7ea");
+      light.setAttribute("position","0.2 1 0.4");
+      root.appendChild(light);
+    }
+
+    function addDragMeta(el, type){
+      el.dataset.dragType = type;
+      el.dataset.placed = "0";
+      el.addEventListener("loaded", function(){
+        el.object3D.userData.dragEl = el;
+      });
+      setTimeout(function(){ if(el.object3D) el.object3D.userData.dragEl = el; }, 0);
+      draggableEls.push(el);
+    }
+
+    function cube(root,x,z,color){
+      var e = document.createElement("a-box");
+      e.setAttribute("width","0.07");
+      e.setAttribute("height","0.07");
+      e.setAttribute("depth","0.07");
+      e.setAttribute("position",x+" 0.052 "+z);
+      e.setAttribute("material","color:"+color+"; roughness:0.38; metalness:0.05");
+      e.setAttribute("shadow","cast:true");
+      root.appendChild(e);
+      addDragMeta(e,"one");
+      return e;
+    }
+
+    function rod(root,x,z,color){
+      var g = document.createElement("a-entity");
+      g.setAttribute("position",x+" 0.045 "+z);
+      for(var i=0;i<10;i++){
+        var c = document.createElement("a-box");
+        c.setAttribute("width","0.04");
+        c.setAttribute("height","0.045");
+        c.setAttribute("depth","0.035");
+        c.setAttribute("position","0 0 "+((i-4.5)*0.035));
+        c.setAttribute("material","color:"+color+"; roughness:0.4");
+        g.appendChild(c);
+      }
+      root.appendChild(g);
+      addDragMeta(g,"ten");
+      return g;
+    }
+
+    function hundred(root,x,z,color){
+      var g = document.createElement("a-entity");
+      g.setAttribute("position",x+" 0.028 "+z);
+
+      var plate = document.createElement("a-box");
+      plate.setAttribute("width","0.25");
+      plate.setAttribute("height","0.026");
+      plate.setAttribute("depth","0.25");
+      plate.setAttribute("material","color:"+color+"; roughness:0.42");
+      g.appendChild(plate);
+
+      for(var i=1;i<10;i++){
+        var vx = document.createElement("a-box");
+        vx.setAttribute("width","0.004");
+        vx.setAttribute("height","0.004");
+        vx.setAttribute("depth","0.25");
+        vx.setAttribute("position",(-0.125+i*0.025)+" 0.016 0");
+        vx.setAttribute("material","color:#0b4e99; opacity:0.65");
+        g.appendChild(vx);
+
+        var hz = document.createElement("a-box");
+        hz.setAttribute("width","0.25");
+        hz.setAttribute("height","0.004");
+        hz.setAttribute("depth","0.004");
+        hz.setAttribute("position","0 0.016 "+(-0.125+i*0.025));
+        hz.setAttribute("material","color:#0b4e99; opacity:0.65");
+        g.appendChild(hz);
+      }
+      root.appendChild(g);
+      addDragMeta(g,"hundred");
+      return g;
+    }
+
+    function buildStage(n){
+      var root = activeRoot();
+      clearRoot(root);
+      addBase(root);
+      placed = 0;
+      regrouped = false;
+
+      if(n === 1){
+        var right = [
+          [0.24,0.20],[0.33,0.20],[0.42,0.20],
+          [0.24,0.29],[0.33,0.29],[0.42,0.29],
+          [0.285,0.11],[0.375,0.11]
+        ];
+        var left = [
+          [-0.24,0.20],[-0.33,0.20],[-0.42,0.20],
+          [-0.24,0.29],[-0.33,0.29],[-0.42,0.29],
+          [-0.33,0.11]
+        ];
+        right.forEach(function(p){ cube(root,p[0],p[1],"#ef6cae"); });
+        left.forEach(function(p){ cube(root,p[0],p[1],"#9567e8"); });
+      }
+
+      if(n === 2){
+        var xsR = [0.19,0.27,0.35];
+        var xsL = [-0.19,-0.27,-0.35];
+        var zs = [0.13,0.31];
+        var count = 0;
+        for(var r=0;r<zs.length;r++){
+          for(var c=0;c<xsR.length;c++){ if(count<6){ rod(root,xsR[c],zs[r],"#39b978"); count++; } }
+        }
+        count = 0;
+        for(var rr=0;rr<zs.length;rr++){
+          for(var cc=0;cc<xsL.length;cc++){ if(count<5){ rod(root,xsL[cc],zs[rr],"#2fae70"); count++; } }
+        }
+        rod(root,0,0.31,"#e0ae3d");
+      }
+
+      if(n === 3){
+        hundred(root,0.27,0.24,"#3d8ee8");
+        hundred(root,0.27,-0.02,"#3d8ee8");
+        hundred(root,-0.27,0.24,"#3d8ee8");
+        hundred(root,-0.27,-0.02,"#62b7f4");
+      }
+    }
+
+    function pointerFromEvent(ev){
+      var canvas = scene.renderer.domElement;
+      var rect = canvas.getBoundingClientRect();
+      pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, scene.camera);
+    }
+
+    function findDragEl(obj){
+      var o = obj;
+      while(o){
+        if(o.userData && o.userData.dragEl) return o.userData.dragEl;
+        o = o.parent;
+      }
+      return null;
+    }
+
+    function makeDragPlane(root){
+      var rootObj = root.object3D;
+      var q = new THREE.Quaternion();
+      rootObj.getWorldQuaternion(q);
+      var normal = new THREE.Vector3(0,1,0).applyQuaternion(q).normalize();
+      var point = new THREE.Vector3(0,0.035,0);
+      rootObj.localToWorld(point);
+      return new THREE.Plane().setFromNormalAndCoplanarPoint(normal,point);
+    }
+
+    function onDown(ev){
+      if(!started || regrouped || success.classList.contains("show")) return;
+      if(mode === "marker" && !markerSeen) return;
+      pointerFromEvent(ev);
+      var objects = draggableEls.filter(function(e){ return e.dataset.placed !== "1"; }).map(function(e){ return e.object3D; });
+      var hits = raycaster.intersectObjects(objects,true);
+      if(!hits.length) return;
+      var el = findDragEl(hits[0].object);
+      if(!el || el.dataset.placed === "1") return;
+      dragging = el;
+      var root = activeRoot();
+      dragPlane = makeDragPlane(root);
+      var hit = new THREE.Vector3();
+      if(raycaster.ray.intersectPlane(dragPlane,hit)){
+        root.object3D.worldToLocal(hit);
+        dragOffset.copy(el.object3D.position).sub(hit);
+      }else dragOffset.set(0,0,0);
+      try{ ev.target.setPointerCapture(ev.pointerId); }catch(e){}
+    }
+
+    function onMove(ev){
+      if(!dragging) return;
+      ev.preventDefault();
+      pointerFromEvent(ev);
+      var world = new THREE.Vector3();
+      if(!raycaster.ray.intersectPlane(dragPlane,world)) return;
+      var root = activeRoot();
+      root.object3D.worldToLocal(world);
+      var p = world.add(dragOffset);
+      dragging.object3D.position.x = Math.max(-0.45,Math.min(0.45,p.x));
+      dragging.object3D.position.z = Math.max(-0.39,Math.min(0.39,p.z));
+    }
+
+    function onUp(ev){
+      if(!dragging) return;
+      var el = dragging;
+      dragging = null;
+      var p = el.object3D.position;
+      var dx = p.x;
+      var dz = p.z + 0.15;
+      var inside = Math.sqrt(dx*dx + dz*dz) < 0.18;
+      if(inside && el.dataset.placed !== "1"){
+        el.dataset.placed = "1";
+        placed += 1;
+        snapPlaced(el,placed);
+        checkRegroup();
+      }
+    }
+
+    function snapPlaced(el,index){
+      var positions;
+      if(stage === 1){
+        positions = [[-0.10,-0.11],[-0.05,-0.11],[0,-0.11],[0.05,-0.11],[0.10,-0.11],[-0.10,-0.18],[-0.05,-0.18],[0,-0.18],[0.05,-0.18],[0.10,-0.18]];
+      }else if(stage === 2){
+        positions = [[-0.10,-0.05],[-0.05,-0.05],[0,-0.05],[0.05,-0.05],[0.10,-0.05],[-0.10,-0.25],[-0.05,-0.25],[0,-0.25],[0.05,-0.25],[0.10,-0.25]];
+      }else{
+        positions = [[-0.08,-0.08],[0.08,-0.08],[-0.08,-0.24],[0.08,-0.24]];
+      }
+      var pos = positions[Math.min(index-1,positions.length-1)];
+      el.object3D.position.x = pos[0];
+      el.object3D.position.z = pos[1];
+    }
+
+    function checkRegroup(){
+      if(stage === 1 && placed === 10) regroupOnes();
+      if(stage === 2 && placed === 10) regroupTens();
+      if(stage === 3 && placed === 4) finish();
+    }
+
+    function shrinkPlaced(callback){
+      regrouped = true;
+      var targets = draggableEls.filter(function(e){ return e.dataset.placed === "1"; });
+      var start = performance.now();
+      var duration = 650;
+      function tick(now){
+        var t = Math.min(1,(now-start)/duration);
+        targets.forEach(function(el){
+          el.object3D.position.x *= (1-0.10*t);
+          el.object3D.position.z += (-0.15-el.object3D.position.z)*(0.10*t);
+          el.object3D.scale.setScalar(Math.max(0.04,1-t));
+        });
+        if(t<1) requestAnimationFrame(tick); else callback(targets);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function removeTargets(list){
+      list.forEach(function(el){ if(el.parentNode) el.parentNode.removeChild(el); });
+      draggableEls = draggableEls.filter(function(el){ return list.indexOf(el) === -1; });
+    }
+
+    function regroupOnes(){
+      setInstruction("ممتاز! 10 آحاد تتحول إلى عشرة واحدة");
+      shrinkPlaced(function(list){
+        removeTargets(list);
+        var carried = rod(activeRoot(),0,-0.15,"#e0ae3d");
+        carried.dataset.placed = "1";
+        draggableEls = draggableEls.filter(function(e){ return e !== carried; });
+        setInstruction("نكتب 5 ونحمل 1 إلى العشرات");
+        continueBtn.style.display = "inline-block";
+      });
+    }
+
+    function regroupTens(){
+      setInstruction("رائع! 10 عشرات تتحول إلى مئة واحدة");
+      shrinkPlaced(function(list){
+        removeTargets(list);
+        var carried = hundred(activeRoot(),0,-0.15,"#59aaf0");
+        carried.dataset.placed = "1";
+        draggableEls = draggableEls.filter(function(e){ return e !== carried; });
+        setInstruction("نكتب 2 ونحمل 1 إلى المئات");
+        continueBtn.style.display = "inline-block";
+      });
+    }
+
+    function finish(){
+      regrouped = true;
+      setInstruction("اكتمل التجميع!");
+      setTimeout(function(){ success.classList.add("show"); },600);
+    }
+
+    function bindCanvas(){
+      var canvas = scene.renderer && scene.renderer.domElement;
+      if(!canvas) return;
+      canvas.style.touchAction = "none";
+      canvas.addEventListener("pointerdown",onDown,{passive:false});
+      canvas.addEventListener("pointermove",onMove,{passive:false});
+      canvas.addEventListener("pointerup",onUp,{passive:false});
+      canvas.addEventListener("pointercancel",onUp,{passive:false});
+    }
+
+    scene.addEventListener("renderstart",bindCanvas);
+
+    setTimeout(function(){
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        cameraHelp.textContent = "هذا الجهاز أو المتصفح لا يدعم تشغيل الكاميرا للنشاط.";
+        cameraHelp.style.display = "block";
+      }
+    },2500);
+  })();
+  </script>
+</body>
+</html>
