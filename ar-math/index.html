@@ -17,6 +17,11 @@
 .top{position:absolute;top:max(12px,env(safe-area-inset-top));left:10px;right:10px;display:flex;align-items:center;gap:8px;justify-content:center}
 .pill{background:rgba(18,17,23,.68);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(9px);padding:10px 14px;border-radius:999px;font-weight:900;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.2)}
 #instruction{max-width:78vw}
+.placebar{position:absolute;top:max(68px,calc(env(safe-area-inset-top) + 58px));left:50%;transform:translateX(-50%);display:flex;direction:ltr;gap:6px;align-items:center;justify-content:center;pointer-events:none;width:min(94vw,520px)}
+.placechip{min-width:86px;padding:8px 12px;border-radius:15px;background:rgba(18,17,23,.58);border:2px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);font-weight:900;text-align:center;font-size:15px;opacity:.7;transform:scale(.94);transition:.2s}
+.placechip.h{border-color:#64b6ff}.placechip.t{border-color:#59d491}.placechip.o{border-color:#ff83bc}
+.placechip.active{opacity:1;transform:scale(1.09);box-shadow:0 0 0 3px rgba(255,255,255,.14),0 8px 24px rgba(0,0,0,.3)}
+#stageMath{position:absolute;top:max(116px,calc(env(safe-area-inset-top) + 106px));left:50%;transform:translateX(-50%);background:rgba(255,255,255,.92);color:#2b2530;border-radius:999px;padding:8px 14px;font-weight:900;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.22);font-size:14px}
 .btn{pointer-events:auto;border:1px solid rgba(255,255,255,.22);background:rgba(18,17,23,.70);color:#fff;border-radius:999px;padding:10px 14px;font-weight:800}
 .icon{width:44px;height:44px;border-radius:50%;padding:0;font-size:19px}
 .bottom{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:10px;right:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
@@ -49,6 +54,12 @@
     <div id="instruction" class="pill">وجّهي الكاميرا إلى الطاولة</div>
     <button id="help" class="btn icon">؟</button>
   </div>
+  <div class="placebar">
+    <div id="hundredsChip" class="placechip h">المئات</div>
+    <div id="tensChip" class="placechip t">العشرات</div>
+    <div id="onesChip" class="placechip o">الآحاد</div>
+  </div>
+  <div id="stageMath">8 آحاد + 7 آحاد</div>
   <div class="bottom">
     <button id="reposition" class="btn">تغيير مكان المكعبات</button>
     <button id="next" class="btn" style="display:none;background:rgba(27,142,98,.86)">التالي</button>
@@ -79,6 +90,10 @@ const placeHint=document.getElementById('placeHint');
 const err=document.getElementById('err');
 const nextBtn=document.getElementById('next');
 const success=document.getElementById('success');
+const hundredsChip=document.getElementById('hundredsChip');
+const tensChip=document.getElementById('tensChip');
+const onesChip=document.getElementById('onesChip');
+const stageMath=document.getElementById('stageMath');
 
 let renderer,scene,camera,root,dropRing;
 let stage=1,placed=0,anchored=false,regrouping=false;
@@ -87,6 +102,12 @@ const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 const clock=new THREE.Clock();
 
 function msg(t){instruction.textContent=t}
+function updatePlaceHud(){
+  [hundredsChip,tensChip,onesChip].forEach(x=>x.classList.remove('active'));
+  if(stage===1){onesChip.classList.add('active');stageMath.textContent='8 آحاد + 7 آحاد';}
+  if(stage===2){tensChip.classList.add('active');stageMath.textContent='6 عشرات + 5 عشرات + 1 محمولة';}
+  if(stage===3){hundredsChip.classList.add('active');stageMath.textContent='2 مئات + 1 مئة + 1 محمولة';}
+}
 function showError(t){err.textContent=t;err.style.display='block'}
 function hideError(){err.style.display='none'}
 
@@ -174,7 +195,35 @@ function clearRoot(){
   while(root.children.length) root.remove(root.children[0]);
   draggables=[];dragging=null;
 }
+function makeTextSprite(text,bg){
+  const cnv=document.createElement('canvas');cnv.width=640;cnv.height=190;
+  const ctx=cnv.getContext('2d');ctx.direction='rtl';
+  ctx.fillStyle=bg;ctx.beginPath();
+  const r=34,x=8,y=8,w=624,h=174;
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.88)';ctx.lineWidth=8;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 72px Tahoma, Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,320,99);
+  const tex=new THREE.CanvasTexture(cnv);tex.colorSpace=THREE.SRGBColorSpace;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
+  sp.scale.set(1.35,.40,1);return sp;
+}
+function addPlaceBoard(){
+  const labels=[
+    {t:'المئات',x:-1.72,c:'rgba(41,126,211,.92)',on:stage===3},
+    {t:'العشرات',x:0,c:'rgba(36,166,105,.92)',on:stage===2},
+    {t:'الآحاد',x:1.72,c:'rgba(211,66,132,.92)',on:stage===1}
+  ];
+  labels.forEach(v=>{
+    const s=makeTextSprite(v.t,v.c);s.position.set(v.x,1.78,.30);s.scale.multiplyScalar(v.on?1.18:.9);s.material.opacity=v.on?1:.72;root.add(s);
+  });
+  const sepMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.28});
+  [-.86,.86].forEach(x=>{
+    const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,-1.45,.02),new THREE.Vector3(x,1.48,.02)]);
+    root.add(new THREE.Line(geo,sepMat));
+  });
+}
 function addBase(){
+  addPlaceBoard();
   const zoneGeo=new THREE.RingGeometry(.62,.78,64);
   const zoneMat=new THREE.MeshBasicMaterial({color:0xffdf5a,transparent:true,opacity:.82,side:THREE.DoubleSide});
   dropRing=new THREE.Mesh(zoneGeo,zoneMat);dropRing.position.z=.03;root.add(dropRing);
@@ -185,7 +234,7 @@ function addBase(){
 }
 function addObj(o,x,y,z=.16,s=1){o.position.set(x,y,z);o.scale.setScalar(s);root.add(o)}
 function buildStage(){
-  clearRoot();addBase();placed=0;regrouping=false;nextBtn.style.display='none';
+  clearRoot();addBase();placed=0;regrouping=false;nextBtn.style.display='none';updatePlaceHud();
   if(stage===1){
     const pink=0xef6cae,purple=0x9b67e8;
     const R=[[-1.85,1.1],[-1.25,1.1],[-.65,1.1],[-1.85,.55],[-1.25,.55],[-.65,.55],[-1.55,0],[-.95,0]];
@@ -213,7 +262,7 @@ function placeRootAtScreen(clientX,clientY){
   if(raycaster.ray.intersectPlane(plane,hit)){
     root.position.copy(hit);root.position.z=-4.3;
   }else root.position.set(0,-.2,-4.3);
-  root.scale.setScalar(.62);
+  root.scale.setScalar(.72);
   root.visible=true;anchored=true;placeHint.style.display='none';buildStage();
 }
 
@@ -296,17 +345,19 @@ function finish(){regrouping=true;msg('اكتمل التجميع');setTimeout(()
 nextBtn.onclick=()=>{stage++;buildStage()};
 document.getElementById('restart').onclick=reset;
 document.getElementById('again').onclick=()=>{success.classList.remove('show');reset()};
-document.getElementById('reposition').onclick=()=>{anchored=false;root.visible=false;placeHint.style.display='block';msg('المسي الطاولة لتثبيت المكعبات من جديد')};
-document.getElementById('help').onclick=()=>alert('المسي مكانًا على الطاولة لتثبيت المكعبات، ثم اسحبي القطع إلى الدائرة المضيئة. عند تجميع 10 قطع تتحول تلقائيًا إلى المنزلة الأعلى.');
+document.getElementById('reposition').onclick=()=>{anchored=false;root.visible=false;placeHint.style.display='block';msg('المسي الطاولة لتثبيت الخانات والمكعبات من جديد')};
+document.getElementById('help').onclick=()=>alert('الخانات واضحة أمامك: المئات باللون الأزرق، العشرات بالأخضر، والآحاد بالوردي. ابدئي بالخانة المضيئة، واسحبي قطعها إلى الدائرة. 10 آحاد تتحول إلى عشرة، و10 عشرات تتحول إلى مئة.');
 
-function reset(){stage=1;placed=0;anchored=false;regrouping=false;root.visible=false;clearRoot();success.classList.remove('show');nextBtn.style.display='none';placeHint.style.display='block';msg('المسي الطاولة لتثبيت مكعبات دينز')}
+function reset(){stage=1;placed=0;regrouping=false;success.classList.remove('show');nextBtn.style.display='none';anchored=true;root.position.set(0,-.35,-4.3);root.scale.setScalar(.72);root.visible=true;placeHint.style.display='none';buildStage();msg('ابدئي بالآحاد: اسحبي المكعبات الصغيرة إلى الدائرة')}
 
 document.getElementById('startBtn').onclick=async()=>{
   hideError();
   try{
     await openCamera();
     if(!renderer)initThree();
-    start.style.display='none';hud.style.display='block';placeHint.style.display='block';msg('المسي الطاولة لتثبيت مكعبات دينز');
+    start.style.display='none';hud.style.display='block';
+    anchored=true;root.position.set(0,-.35,-4.3);root.scale.setScalar(.72);root.visible=true;placeHint.style.display='none';
+    buildStage();msg('ابدئي بالآحاد: اسحبي المكعبات الصغيرة إلى الدائرة');
   }catch(e){
     showError('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا، ثم أعيدي المحاولة.');
   }
