@@ -3,36 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>مغامرة الجمع بالواقع المعزز</title>
+<title>نشاط الجمع بالواقع المعزز</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;touch-action:none}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;touch-action:none}
 #camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0}
 #three{position:fixed;inset:0;width:100%;height:100%;z-index:1;touch-action:none}
-#start{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 20%,#a75d9d 0,#31243f 38%,#0c0b10 85%)}
-.card{width:min(92vw,460px);background:rgba(255,255,255,.97);border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.4)}
-.card h1{margin:0;color:#7d316e;font-size:29px}.card p{line-height:1.8;color:#5b5361}.eq{direction:ltr;font-size:43px;font-weight:900;color:#2947a6;margin:16px 0 22px}
+#start{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 20%,#a75d9d 0,#31243f 42%,#0c0b10 88%)}
+.startCard{width:min(92vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.42)}
+.startCard h1{margin:0;color:#7d316e;font-size:29px}.startCard p{line-height:1.8;color:#5b5361}.eq{direction:ltr;font-size:46px;font-weight:900;color:#2450c6;margin:15px 0 22px}
 .primary{border:0;width:100%;padding:15px;border-radius:17px;background:linear-gradient(135deg,#a43885,#6545b8);color:#fff;font-weight:900;font-size:19px}
-#hud{position:fixed;inset:0;z-index:5;pointer-events:none;color:#fff;display:none}
-.top{position:absolute;top:max(12px,env(safe-area-inset-top));left:10px;right:10px;display:flex;align-items:center;gap:8px;justify-content:center}
-.pill{background:rgba(18,17,23,.68);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(9px);padding:10px 14px;border-radius:999px;font-weight:900;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.2)}
-#instruction{max-width:78vw}
-.placebar{position:absolute;top:max(68px,calc(env(safe-area-inset-top) + 58px));left:50%;transform:translateX(-50%);display:flex;direction:ltr;gap:6px;align-items:center;justify-content:center;pointer-events:none;width:min(94vw,520px)}
-.placechip{min-width:86px;padding:8px 12px;border-radius:15px;background:rgba(18,17,23,.58);border:2px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);font-weight:900;text-align:center;font-size:15px;opacity:.7;transform:scale(.94);transition:.2s}
-.placechip.h{border-color:#64b6ff}.placechip.t{border-color:#59d491}.placechip.o{border-color:#ff83bc}
-.placechip.active{opacity:1;transform:scale(1.09);box-shadow:0 0 0 3px rgba(255,255,255,.14),0 8px 24px rgba(0,0,0,.3)}
-#stageMath{position:absolute;top:max(116px,calc(env(safe-area-inset-top) + 106px));left:50%;transform:translateX(-50%);background:rgba(255,255,255,.92);color:#2b2530;border-radius:999px;padding:8px 14px;font-weight:900;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.22);font-size:14px}
-.btn{pointer-events:auto;border:1px solid rgba(255,255,255,.22);background:rgba(18,17,23,.70);color:#fff;border-radius:999px;padding:10px 14px;font-weight:800}
-.icon{width:44px;height:44px;border-radius:50%;padding:0;font-size:19px}
-.bottom{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:10px;right:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-#placeHint{position:fixed;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;display:none;text-align:center;color:#fff}
-#reticle{width:72px;height:72px;border:3px solid rgba(255,255,255,.92);border-radius:50%;margin:auto;box-shadow:0 0 0 10px rgba(255,255,255,.10),0 0 30px rgba(255,255,255,.35)}
-#placeHint p{background:rgba(0,0,0,.55);padding:9px 13px;border-radius:999px;font-weight:900}
-#err{position:fixed;z-index:30;left:15px;right:15px;bottom:20px;display:none;background:#fff3cd;color:#554500;padding:13px;border-radius:14px;text-align:center;font-weight:800}
-#success{position:fixed;inset:0;z-index:15;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.28);padding:18px}
-#success.show{display:flex}.success{background:rgba(255,255,255,.96);border:3px solid #e6c75f;border-radius:28px;padding:28px 22px;text-align:center;color:#222;box-shadow:0 25px 80px rgba(0,0,0,.36)}
-.success .result{direction:ltr;font-size:45px;font-weight:900;color:#187754}.success h2{color:#8a3375}.success button{border:0;background:#7e326e;color:#fff;padding:12px 17px;border-radius:14px;font-weight:900}
-#debug{position:fixed;z-index:9;top:68px;left:10px;background:rgba(0,0,0,.45);color:white;border-radius:12px;padding:7px 10px;font-size:12px;display:none}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;display:none;color:#fff}
+.topline{position:absolute;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center}
+.circleBtn{pointer-events:auto;width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.88);background:rgba(25,23,30,.68);color:white;font-size:22px;font-weight:900;backdrop-filter:blur(8px)}
+.topPill{justify-self:center;max-width:min(72vw,520px);padding:10px 18px;border-radius:999px;background:rgba(22,20,26,.72);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);font-weight:900;font-size:18px;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.mathCard{position:absolute;top:max(72px,calc(env(safe-area-inset-top) + 62px));left:50%;transform:translateX(-50%);width:min(62vw,520px);background:rgba(255,255,255,.94);color:#222;border-radius:18px;padding:10px 14px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.9)}
+.mathCard .big{direction:ltr;font-size:clamp(26px,6vw,48px);font-weight:900;line-height:1}.mathCard .big .a{color:#2456d5}.mathCard .big .b{color:#df3d82}.mathCard .sub{margin-top:6px;font-weight:800;color:#2f2b31;font-size:clamp(11px,2.4vw,17px)}
+.legend{position:absolute;top:165px;left:10px;width:min(28vw,190px);background:rgba(255,255,255,.93);color:#222;border-radius:16px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.legendRow{display:flex;direction:ltr;align-items:center;gap:8px;margin:7px 0;font-weight:900;font-size:clamp(10px,2.5vw,15px)}
+.miniHundred{width:34px;height:34px;background:repeating-linear-gradient(0deg,transparent 0 4px,rgba(0,70,150,.45) 4px 5px),repeating-linear-gradient(90deg,#2f8ef0 0 4px,#1b68bd 4px 5px);border-radius:4px;box-shadow:inset 0 0 0 1px #14569f}
+.miniTen{width:10px;height:48px;background:repeating-linear-gradient(0deg,#39b978 0 4px,#187a4b 4px 5px);border-radius:2px}.miniOne{width:18px;height:18px;background:#f5c52c;border-radius:3px;box-shadow:inset -2px -2px 0 rgba(170,120,0,.25)}
+.guide{position:absolute;top:165px;right:10px;width:min(30vw,210px);background:rgba(255,255,255,.93);color:#222;border-radius:16px;padding:11px 12px;box-shadow:0 8px 24px rgba(0,0,0,.22);font-weight:900;text-align:center;line-height:1.55;font-size:clamp(11px,2.5vw,16px)}
+.guide .girl{font-size:34px;display:block;margin-bottom:2px}
+#stageBadge{display:inline-block;margin-top:7px;padding:5px 9px;border-radius:999px;color:#fff;background:#d94386;font-size:12px}
+.bottomBar{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));left:10px;right:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.actionBtn{pointer-events:auto;border:1px solid rgba(255,255,255,.22);background:rgba(22,20,26,.72);color:#fff;border-radius:999px;padding:10px 15px;font-weight:900}
+#next{display:none;background:rgba(25,145,95,.92)}
+#resultCard{position:absolute;bottom:max(62px,calc(env(safe-area-inset-bottom) + 54px));left:50%;transform:translateX(-50%);display:none;background:rgba(255,255,255,.95);color:#222;border-radius:18px;padding:8px 18px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);min-width:200px}
+#resultCard .label{font-weight:900;font-size:15px}#resultCard .num{direction:ltr;font-size:44px;font-weight:900;color:#17965e}
+#err{position:fixed;z-index:40;left:14px;right:14px;bottom:20px;display:none;background:#fff3cd;color:#594900;padding:13px;border-radius:14px;text-align:center;font-weight:800}
+@media (max-width:430px){
+  .legend,.guide{top:155px}
+  .legend{width:31vw}.guide{width:33vw}
+  .mathCard{width:68vw}
+}
 </style>
 </head>
 <body>
@@ -40,44 +45,47 @@
 <canvas id="three"></canvas>
 
 <div id="start">
-  <div class="card">
-    <h1>مغامرة الجمع بالواقع المعزز</h1>
-    <p>ستظهر أمامكِ الكاميرا الحقيقية، ثم ثبّتي مكعبات دينز فوق الطاولة ولمسيها واسحبيها لإعادة التجميع.</p>
+  <div class="startCard">
+    <h1>نشاط الجمع بالواقع المعزز</h1>
+    <p>ستظهر أمامكِ الكاميرا الحقيقية، ومكعبات دينز فوق الطاولة. اسحبي القطع واجمعيها لتكتشفي الناتج.</p>
     <div class="eq">268 + 157</div>
     <button id="startBtn" class="primary">ابدئي النشاط</button>
   </div>
 </div>
 
 <div id="hud">
-  <div class="top">
-    <button id="restart" class="btn icon">↻</button>
-    <div id="instruction" class="pill">وجّهي الكاميرا إلى الطاولة</div>
-    <button id="help" class="btn icon">؟</button>
+  <div class="topline">
+    <button id="home" class="circleBtn">⌂</button>
+    <div class="topPill">وجّهي الكاميرا نحو الطاولة</div>
+    <button id="restart" class="circleBtn">↻</button>
   </div>
-  <div class="placebar">
-    <div id="hundredsChip" class="placechip h">المئات</div>
-    <div id="tensChip" class="placechip t">العشرات</div>
-    <div id="onesChip" class="placechip o">الآحاد</div>
+
+  <div class="mathCard">
+    <div class="big"><span class="a">268</span> + <span class="b">157</span></div>
+    <div class="sub">استخدمي مكعبات دينز لتجميع العددين</div>
   </div>
-  <div id="stageMath">8 آحاد + 7 آحاد</div>
-  <div class="bottom">
-    <button id="reposition" class="btn">تغيير مكان المكعبات</button>
-    <button id="next" class="btn" style="display:none;background:rgba(27,142,98,.86)">التالي</button>
+
+  <div class="legend">
+    <div class="legendRow"><div class="miniHundred"></div><span>100 = مئة</span></div>
+    <div class="legendRow"><div class="miniTen"></div><span>10 = عشرة</span></div>
+    <div class="legendRow"><div class="miniOne"></div><span>1 = آحاد</span></div>
+  </div>
+
+  <div class="guide">
+    <span class="girl">👧🏻</span>
+    <div id="guideText">ابدئي بالآحاد الصفراء واسحبيها إلى دائرة التجميع.</div>
+    <span id="stageBadge">الآحاد</span>
+  </div>
+
+  <div id="resultCard"><div class="label">الناتج الصحيح</div><div class="num">425</div></div>
+
+  <div class="bottomBar">
+    <button id="reposition" class="actionBtn">تثبيت النشاط من جديد</button>
+    <button id="next" class="actionBtn">التالي</button>
   </div>
 </div>
 
-<div id="placeHint"><div id="reticle"></div><p>المسي المكان الذي تريدين وضع المكعبات عليه</p></div>
 <div id="err"></div>
-<div id="debug"></div>
-
-<div id="success">
-  <div class="success">
-    <div style="font-size:46px">⭐</div>
-    <div class="result">268 + 157 = 425</div>
-    <h2>أحسنتِ يا بطلة الجمع!</h2>
-    <button id="again">أعيدي النشاط</button>
-  </div>
-</div>
 
 <script>
 (function(){
@@ -85,53 +93,42 @@ const video=document.getElementById('camera');
 const canvas=document.getElementById('three');
 const start=document.getElementById('start');
 const hud=document.getElementById('hud');
-const instruction=document.getElementById('instruction');
-const placeHint=document.getElementById('placeHint');
-const err=document.getElementById('err');
+const guideText=document.getElementById('guideText');
+const stageBadge=document.getElementById('stageBadge');
 const nextBtn=document.getElementById('next');
-const success=document.getElementById('success');
-const hundredsChip=document.getElementById('hundredsChip');
-const tensChip=document.getElementById('tensChip');
-const onesChip=document.getElementById('onesChip');
-const stageMath=document.getElementById('stageMath');
+const resultCard=document.getElementById('resultCard');
+const err=document.getElementById('err');
 
-let renderer,scene,camera,root,dropRing;
-let stage=1,placed=0,anchored=false,regrouping=false;
+let renderer,scene,camera,root,board,dropRing;
+let stage=1,placed=0,regrouping=false,anchored=true;
 let draggables=[],dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 const clock=new THREE.Clock();
 
-function msg(t){instruction.textContent=t}
-function updatePlaceHud(){
-  [hundredsChip,tensChip,onesChip].forEach(x=>x.classList.remove('active'));
-  if(stage===1){onesChip.classList.add('active');stageMath.textContent='8 آحاد + 7 آحاد';}
-  if(stage===2){tensChip.classList.add('active');stageMath.textContent='6 عشرات + 5 عشرات + 1 محمولة';}
-  if(stage===3){hundredsChip.classList.add('active');stageMath.textContent='2 مئات + 1 مئة + 1 محمولة';}
-}
 function showError(t){err.textContent=t;err.style.display='block'}
 function hideError(){err.style.display='none'}
 
 async function openCamera(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error('camera unsupported');
-  const constraints={video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false};
-  const stream=await navigator.mediaDevices.getUserMedia(constraints);
-  video.srcObject=stream;
-  await video.play();
+  const stream=await navigator.mediaDevices.getUserMedia({
+    video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false
+  });
+  video.srcObject=stream;await video.play();
 }
 
 function initThree(){
   renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.8));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.7));
   renderer.setSize(innerWidth,innerHeight,false);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   scene=new THREE.Scene();
-  camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,100);
+  camera=new THREE.PerspectiveCamera(49,innerWidth/innerHeight,.1,100);
   camera.position.set(0,0,0);
-  scene.add(new THREE.HemisphereLight(0xffffff,0x5b5b6a,1.45));
-  const dl=new THREE.DirectionalLight(0xfff5e7,2.1);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
-  root=new THREE.Group();root.visible=false;root.rotation.x=-0.42;scene.add(root);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x4d4d5a,1.6));
+  const dl=new THREE.DirectionalLight(0xfff3df,2.3);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
+  root=new THREE.Group();root.rotation.x=-0.52;root.position.set(0,-1.15,-5.35);root.scale.setScalar(.78);scene.add(root);
   window.addEventListener('resize',resize);
   canvas.addEventListener('pointerdown',onDown,{passive:false});
   canvas.addEventListener('pointermove',onMove,{passive:false});
@@ -140,232 +137,173 @@ function initThree(){
   animate();
 }
 
-function resize(){
-  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight,false);
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false)}
+function roundedBoxGeometry(w,h,d,r=.04,s=2){
+  const sh=new THREE.Shape(),x=-w/2,y=-h/2;
+  sh.moveTo(x+r,y);sh.lineTo(x+w-r,y);sh.quadraticCurveTo(x+w,y,x+w,y+r);
+  sh.lineTo(x+w,y+h-r);sh.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  sh.lineTo(x+r,y+h);sh.quadraticCurveTo(x,y+h,x,y+h-r);
+  sh.lineTo(x,y+r);sh.quadraticCurveTo(x,y,x+r,y);
+  return new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:true,bevelSegments:s,steps:1,bevelSize:r*.42,bevelThickness:r*.42}).center();
 }
-
-function roundedBoxGeometry(w,h,d,r=.04,s=3){
-  const shape=new THREE.Shape();
-  const x=-w/2,y=-h/2;
-  shape.moveTo(x+r,y);shape.lineTo(x+w-r,y);shape.quadraticCurveTo(x+w,y,x+w,y+r);
-  shape.lineTo(x+w,y+h-r);shape.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  shape.lineTo(x+r,y+h);shape.quadraticCurveTo(x,y+h,x,y+h-r);
-  shape.lineTo(x,y+r);shape.quadraticCurveTo(x,y,x+r,y);
-  return new THREE.ExtrudeGeometry(shape,{depth:d,bevelEnabled:true,bevelSegments:s,steps:1,bevelSize:r*.45,bevelThickness:r*.45}).center();
-}
-
-function mat(color,rough=.32,metal=.02){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
-
-function tagDraggable(obj,type){
+function material(color){return new THREE.MeshStandardMaterial({color,roughness:.34,metalness:.02})}
+function tag(obj,type){
   obj.userData.draggable=true;obj.userData.type=type;obj.userData.placed=false;
-  obj.traverse(c=>c.userData.dragRoot=obj);
-  draggables.push(obj);
+  obj.traverse(c=>c.userData.dragRoot=obj);draggables.push(obj);
 }
-
-function makeUnit(color){
-  const g=roundedBoxGeometry(.34,.34,.20,.05,2);
-  const m=new THREE.Mesh(g,mat(color,.3,.04));m.castShadow=true;m.receiveShadow=true;tagDraggable(m,'one');return m;
+function unit(color,active){
+  const m=new THREE.Mesh(roundedBoxGeometry(.28,.28,.20,.045),material(color));m.castShadow=true;m.receiveShadow=true;if(active)tag(m,'one');return m;
 }
-function makeRod(color){
-  const group=new THREE.Group();
-  for(let i=0;i<10;i++){
-    const m=new THREE.Mesh(roundedBoxGeometry(.24,.24,.17,.035,1),mat(color,.34,.02));
-    m.position.y=(i-4.5)*.235;m.castShadow=true;group.add(m);
-  }
-  tagDraggable(group,'ten');return group;
-}
-function makeHundred(color){
+function rod(color,active){
   const g=new THREE.Group();
-  const plate=new THREE.Mesh(roundedBoxGeometry(1.55,1.55,.13,.06,2),mat(color,.36,.01));
-  plate.castShadow=true;plate.receiveShadow=true;g.add(plate);
-  const lineMat=new THREE.LineBasicMaterial({color:0x155c9c,transparent:true,opacity:.65});
+  for(let i=0;i<10;i++){const m=new THREE.Mesh(roundedBoxGeometry(.20,.20,.16,.03,1),material(color));m.position.y=(i-4.5)*.19;m.castShadow=true;g.add(m)}
+  if(active)tag(g,'ten');return g;
+}
+function hundred(color,active){
+  const g=new THREE.Group();
+  const p=new THREE.Mesh(roundedBoxGeometry(1.18,1.18,.12,.05),material(color));p.castShadow=true;p.receiveShadow=true;g.add(p);
+  const lm=new THREE.LineBasicMaterial({color:0x135b9c,transparent:true,opacity:.7});
   for(let i=1;i<10;i++){
-    let x=-.775+i*.155;
-    let geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,-.775,.075),new THREE.Vector3(x,.775,.075)]);
-    g.add(new THREE.Line(geo,lineMat));
-    let y=-.775+i*.155;
-    geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-.775,y,.075),new THREE.Vector3(.775,y,.075)]);
-    g.add(new THREE.Line(geo,lineMat));
+    let x=-.59+i*.118,geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,-.59,.068),new THREE.Vector3(x,.59,.068)]);g.add(new THREE.Line(geo,lm));
+    let y=-.59+i*.118;geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-.59,y,.068),new THREE.Vector3(.59,y,.068)]);g.add(new THREE.Line(geo,lm));
   }
-  tagDraggable(g,'hundred');return g;
+  if(active)tag(g,'hundred');return g;
+}
+function textSprite(text,bg='#244fd1'){
+  const c=document.createElement('canvas');c.width=420;c.height=130;const x=c.getContext('2d');
+  x.fillStyle=bg;x.roundRect(5,5,410,120,28);x.fill();x.fillStyle='#fff';x.font='bold 64px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,210,68);
+  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));s.scale.set(1.15,.36,1);return s;
+}
+function clearRoot(){while(root.children.length)root.remove(root.children[0]);draggables=[];dragging=null}
+function addBoard(){
+  board=new THREE.Mesh(new THREE.PlaneGeometry(6.5,4.15),new THREE.MeshStandardMaterial({color:0xf7f6f7,roughness:.75,metalness:0,transparent:true,opacity:.96}));
+  board.position.z=-.10;board.receiveShadow=true;root.add(board);
+  const bm=material(0x1f2025);
+  const top=new THREE.Mesh(new THREE.BoxGeometry(6.65,.09,.08),bm);top.position.set(0,2.04,-.03);root.add(top);
+  const bot=top.clone();bot.position.y=-2.04;root.add(bot);
+  const side=new THREE.Mesh(new THREE.BoxGeometry(.09,4.08,.08),bm);side.position.set(-3.28,0,-.03);root.add(side);
+  const side2=side.clone();side2.position.x=3.28;root.add(side2);
+
+  [[-2.9,1.7],[2.9,1.7],[-2.9,-1.7],[2.9,-1.7]].forEach(p=>{
+    const outer=new THREE.Mesh(new THREE.PlaneGeometry(.42,.42),new THREE.MeshBasicMaterial({color:0x111111}));outer.position.set(p[0],p[1],.02);root.add(outer);
+    const inner=new THREE.Mesh(new THREE.PlaneGeometry(.19,.19),new THREE.MeshBasicMaterial({color:0xffffff}));inner.position.set(p[0],p[1],.03);root.add(inner);
+  });
+
+  const l=textSprite('268','#2456d5');l.position.set(-1.62,1.63,.22);root.add(l);
+  const r=textSprite('157','#df3d82');r.position.set(1.62,1.63,.22);root.add(r);
+
+  dropRing=new THREE.Mesh(new THREE.RingGeometry(.46,.61,64),new THREE.MeshBasicMaterial({color:0xffcf32,transparent:true,opacity:.75,side:THREE.DoubleSide}));
+  dropRing.position.set(0,-.32,.06);root.add(dropRing);
+}
+function add(o,x,y,z=.16,s=1){o.position.set(x,y,z);o.scale.setScalar(s);root.add(o)}
+
+function draw268(stageActive){
+  const blue=0x2f8ef0,green=0x35b56f,yellow=0xf5c52c;
+  const activeH=stageActive==='hundred',activeT=stageActive==='ten',activeO=stageActive==='one';
+  add(hundred(blue,activeH),-2.35,.78,.14,.62);add(hundred(blue,activeH),-1.58,.78,.14,.62);
+  const tx=[-2.55,-2.15,-1.75,-2.55,-2.15,-1.75];
+  tx.forEach((x,i)=>add(rod(green,activeT),x,i<3?-.05:-.88,.13,.54));
+  const pts=[[-1.25,.15],[-.92,.15],[-1.25,-.18],[-.92,-.18],[-1.25,-.51],[-.92,-.51],[-1.25,-.84],[-.92,-.84]];
+  pts.forEach(p=>add(unit(yellow,activeO),p[0],p[1],.17,.82));
+}
+function draw157(stageActive,carried=false){
+  const blue=0x2f8ef0,green=0x35b56f,yellow=0xf5c52c,gold=0xe4ad2f;
+  const activeH=stageActive==='hundred',activeT=stageActive==='ten',activeO=stageActive==='one';
+  add(hundred(blue,activeH),1.55,.78,.14,.62);
+  const tx=[1.10,1.48,1.86,2.24,2.62];
+  tx.forEach(x=>add(rod(green,activeT),x,-.18,.13,.54));
+  if(stage===2) add(rod(gold,activeT),2.62,-1.0,.13,.54);
+  const pts=[[1.18,-.86],[1.52,-.86],[1.86,-.86],[2.20,-.86],[1.52,-1.18],[1.86,-1.18],[2.20,-1.18]];
+  if(stage===1) pts.forEach(p=>add(unit(yellow,activeO),p[0],p[1],.17,.82));
 }
 
-function clearRoot(){
-  while(root.children.length) root.remove(root.children[0]);
-  draggables=[];dragging=null;
-}
-function makeTextSprite(text,bg){
-  const cnv=document.createElement('canvas');cnv.width=640;cnv.height=190;
-  const ctx=cnv.getContext('2d');ctx.direction='rtl';
-  ctx.fillStyle=bg;ctx.beginPath();
-  const r=34,x=8,y=8,w=624,h=174;
-  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,.88)';ctx.lineWidth=8;ctx.stroke();
-  ctx.fillStyle='#fff';ctx.font='bold 72px Tahoma, Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,320,99);
-  const tex=new THREE.CanvasTexture(cnv);tex.colorSpace=THREE.SRGBColorSpace;
-  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
-  sp.scale.set(1.35,.40,1);return sp;
-}
-function addPlaceBoard(){
-  const labels=[
-    {t:'المئات',x:-1.72,c:'rgba(41,126,211,.92)',on:stage===3},
-    {t:'العشرات',x:0,c:'rgba(36,166,105,.92)',on:stage===2},
-    {t:'الآحاد',x:1.72,c:'rgba(211,66,132,.92)',on:stage===1}
-  ];
-  labels.forEach(v=>{
-    const s=makeTextSprite(v.t,v.c);s.position.set(v.x,1.78,.30);s.scale.multiplyScalar(v.on?1.18:.9);s.material.opacity=v.on?1:.72;root.add(s);
-  });
-  const sepMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.28});
-  [-.86,.86].forEach(x=>{
-    const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,-1.45,.02),new THREE.Vector3(x,1.48,.02)]);
-    root.add(new THREE.Line(geo,sepMat));
-  });
-}
-function addBase(){
-  addPlaceBoard();
-  const zoneGeo=new THREE.RingGeometry(.62,.78,64);
-  const zoneMat=new THREE.MeshBasicMaterial({color:0xffdf5a,transparent:true,opacity:.82,side:THREE.DoubleSide});
-  dropRing=new THREE.Mesh(zoneGeo,zoneMat);dropRing.position.z=.03;root.add(dropRing);
-  const glow=new THREE.Mesh(new THREE.CircleGeometry(.60,64),new THREE.MeshBasicMaterial({color:0xffef9c,transparent:true,opacity:.12,side:THREE.DoubleSide}));
-  glow.position.z=.025;root.add(glow);
-  const shadow=new THREE.Mesh(new THREE.PlaneGeometry(5.4,3.9),new THREE.ShadowMaterial({opacity:.18}));
-  shadow.position.z=-.08;shadow.receiveShadow=true;root.add(shadow);
-}
-function addObj(o,x,y,z=.16,s=1){o.position.set(x,y,z);o.scale.setScalar(s);root.add(o)}
 function buildStage(){
-  clearRoot();addBase();placed=0;regrouping=false;nextBtn.style.display='none';updatePlaceHud();
+  clearRoot();addBoard();placed=0;regrouping=false;nextBtn.style.display='none';resultCard.style.display='none';
   if(stage===1){
-    const pink=0xef6cae,purple=0x9b67e8;
-    const R=[[-1.85,1.1],[-1.25,1.1],[-.65,1.1],[-1.85,.55],[-1.25,.55],[-.65,.55],[-1.55,0],[-.95,0]];
-    const L=[[.65,1.1],[1.25,1.1],[1.85,1.1],[.65,.55],[1.25,.55],[1.85,.55],[1.25,0]];
-    R.forEach(p=>addObj(makeUnit(pink),p[0],p[1]));
-    L.forEach(p=>addObj(makeUnit(purple),p[0],p[1]));
-    msg('اسحبي الآحاد إلى الدائرة المضيئة');
+    guideText.textContent='ابدئي بالآحاد الصفراء واسحبيها إلى دائرة التجميع.';
+    stageBadge.textContent='الآحاد';
+    draw268('one');draw157('one');
   }else if(stage===2){
-    const green=0x39b978,gold=0xe0ae3d;
-    let pos=[[-1.8,1.15],[-1.15,1.15],[-.5,1.15],[-1.8,.1],[-1.15,.1],[-.5,.1],[.5,1.15],[1.15,1.15],[1.8,1.15],[.5,.1],[1.15,.1]];
-    pos.forEach(p=>addObj(makeRod(green),p[0],p[1],.15,.72));
-    addObj(makeRod(gold),1.8,.1,.15,.72);
-    msg('اسحبي العشرات إلى الدائرة المضيئة');
-  }else if(stage===3){
-    [[-1.25,.8],[1.25,.8],[-1.25,-.65],[1.25,-.65]].forEach((p,i)=>addObj(makeHundred(i===3?0x62b7f4:0x3d8ee8),p[0],p[1],.10,.72));
-    msg('اسحبي المئات إلى الدائرة المضيئة');
+    guideText.textContent='الآن اجمعي العشرات الخضراء مع العشرة المحمولة.';
+    stageBadge.textContent='العشرات';
+    // show fixed hundreds + active tens + fixed 5 ones
+    draw268('ten');draw157('ten');
+    const yellow=0xf5c52c;
+    [[.88,-1.38],[1.22,-1.38],[1.56,-1.38],[1.90,-1.38],[2.24,-1.38]].forEach(p=>add(unit(yellow,false),p[0],p[1],.17,.82));
+  }else{
+    guideText.textContent='أخيرًا اجمعي المئات الزرقاء.';
+    stageBadge.textContent='المئات';
+    const blue=0x2f8ef0,green=0x35b56f,yellow=0xf5c52c;
+    add(hundred(blue,true),-2.15,.62,.14,.62);add(hundred(blue,true),-1.37,.62,.14,.62);
+    add(hundred(blue,true),1.35,.62,.14,.62);add(hundred(0x62b7f4,true),2.12,.62,.14,.62);
+    // fixed result tens and ones
+    add(rod(green,false),-.25,-.30,.13,.54);add(rod(green,false),.18,-.30,.13,.54);
+    [[-.48,-1.23],[-.15,-1.23],[.18,-1.23],[.51,-1.23],[.84,-1.23]].forEach(p=>add(unit(yellow,false),p[0],p[1],.17,.82));
   }
 }
 
-function placeRootAtScreen(clientX,clientY){
-  setPointer(clientX,clientY);
-  raycaster.setFromCamera(pointer,camera);
-  const plane=new THREE.Plane(new THREE.Vector3(0,0,1),4.3);
-  const hit=new THREE.Vector3();
-  if(raycaster.ray.intersectPlane(plane,hit)){
-    root.position.copy(hit);root.position.z=-4.3;
-  }else root.position.set(0,-.2,-4.3);
-  root.scale.setScalar(.72);
-  root.visible=true;anchored=true;placeHint.style.display='none';buildStage();
-}
-
-function setPointer(x,y){
-  const r=canvas.getBoundingClientRect();
-  pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1;
-}
-
-function rootFromHit(obj){let o=obj;while(o){if(o.userData&&o.userData.dragRoot)return o.userData.dragRoot;o=o.parent}return null}
-function planeForRoot(){
-  const q=new THREE.Quaternion();root.getWorldQuaternion(q);
-  const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();
-  const p=new THREE.Vector3(0,0,0);root.localToWorld(p);
-  return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p);
-}
-
+function setPointer(x,y){const r=canvas.getBoundingClientRect();pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1}
+function findRoot(o){let n=o;while(n){if(n.userData&&n.userData.dragRoot)return n.userData.dragRoot;n=n.parent}return null}
+function planeForRoot(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
 function onDown(e){
-  e.preventDefault();
-  if(!anchored){placeRootAtScreen(e.clientX,e.clientY);return}
-  if(regrouping)return;
+  e.preventDefault();if(regrouping)return;
   setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);
-  const hits=raycaster.intersectObjects(draggables.filter(d=>!d.userData.placed),true);
-  if(!hits.length)return;
-  dragging=rootFromHit(hits[0].object);if(!dragging)return;
-  dragPlane=planeForRoot();
-  const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){
-    root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w);
-  }else dragOffset.set(0,0,0);
+  const hits=raycaster.intersectObjects(draggables.filter(d=>!d.userData.placed),true);if(!hits.length)return;
+  dragging=findRoot(hits[0].object);if(!dragging)return;dragPlane=planeForRoot();
+  const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
 }
 function onMove(e){
   if(!dragging)return;e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);
-  const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;
-  root.worldToLocal(w);w.add(dragOffset);
-  dragging.position.x=THREE.MathUtils.clamp(w.x,-2.5,2.5);
-  dragging.position.y=THREE.MathUtils.clamp(w.y,-1.45,1.55);
+  const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOffset);
+  dragging.position.x=THREE.MathUtils.clamp(w.x,-2.9,2.9);dragging.position.y=THREE.MathUtils.clamp(w.y,-1.65,1.5);
 }
 function onUp(){
-  if(!dragging)return;
-  const d=dragging;dragging=null;
-  const inside=Math.hypot(d.position.x,d.position.y)<.83;
-  if(inside&&!d.userData.placed){
-    d.userData.placed=true;placed++;snap(d,placed);check();
-  }
+  if(!dragging)return;const d=dragging;dragging=null;
+  if(Math.hypot(d.position.x,d.position.y+.32)<.68 && !d.userData.placed){d.userData.placed=true;placed++;snap(d,placed);check()}
 }
 function snap(d,i){
-  const coords=stage===3?[[-.34,.34],[.34,.34],[-.34,-.34],[.34,-.34]]:[[-.46,.36],[0,.36],[.46,.36],[-.46,0],[0,0],[.46,0],[-.46,-.36],[0,-.36],[.46,-.36],[0,-.72]];
-  const p=coords[Math.min(i-1,coords.length-1)];
-  d.position.x=p[0];d.position.y=p[1];
+  const c=stage===3?[[-.34,.02],[.34,.02],[-.34,-.58],[.34,-.58]]:[[-.42,.10],[0,.10],[.42,.10],[-.42,-.22],[0,-.22],[.42,-.22],[-.42,-.54],[0,-.54],[.42,-.54],[0,-.86]];
+  const p=c[Math.min(i-1,c.length-1)];d.position.x=p[0];d.position.y=p[1]-.32;
 }
+function collapse(list,done){
+  regrouping=true;const st=performance.now(),dur=650,starts=list.map(o=>({o,p:o.position.clone(),s:o.scale.clone()}));
+  function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);starts.forEach(v=>{v.o.position.lerpVectors(v.p,new THREE.Vector3(0,-.32,.16),e);v.o.scale.copy(v.s).multiplyScalar(1-e*.95)});if(k<1)requestAnimationFrame(tick);else done()}
+  requestAnimationFrame(tick);
+}
+function removePlaced(){const a=draggables.filter(d=>d.userData.placed);a.forEach(o=>root.remove(o));draggables=draggables.filter(d=>!d.userData.placed)}
 function check(){
-  if(stage===1&&placed===10)regroupOnes();
-  if(stage===2&&placed===10)regroupTens();
-  if(stage===3&&placed===4)finish();
+  if(stage===1&&placed===10){
+    guideText.textContent='ممتاز! 10 آحاد أصبحت عشرة واحدة. تبقى 5 آحاد.';
+    const a=draggables.filter(d=>d.userData.placed);collapse(a,()=>{removePlaced();const carry=rod(0xe4ad2f,false);add(carry,0,-.32,.16,.56);nextBtn.style.display='inline-block';regrouping=false});
+  }
+  if(stage===2&&placed===10){
+    guideText.textContent='رائع! 10 عشرات أصبحت مئة واحدة. تبقى عشرتان.';
+    const a=draggables.filter(d=>d.userData.placed);collapse(a,()=>{removePlaced();const carry=hundred(0x62b7f4,false);add(carry,0,-.32,.14,.58);nextBtn.style.display='inline-block';regrouping=false});
+  }
+  if(stage===3&&placed===4){
+    regrouping=true;guideText.textContent='أحسنتِ! اكتمل الجمع.';stageBadge.textContent='الناتج';resultCard.style.display='block';
+  }
 }
-
-function animateCollapse(targets,after){
-  regrouping=true;const startT=performance.now(),dur=700;
-  const starts=targets.map(o=>({o,p:o.position.clone(),s:o.scale.clone()}));
-  function tick(t){
-    const k=Math.min(1,(t-startT)/dur),ease=1-Math.pow(1-k,3);
-    starts.forEach(v=>{v.o.position.lerpVectors(v.p,new THREE.Vector3(0,0,.16),ease);v.o.scale.copy(v.s).multiplyScalar(1-ease*.96)});
-    if(k<1)requestAnimationFrame(tick);else after();
-  }requestAnimationFrame(tick);
-}
-function removePlaced(){
-  const t=draggables.filter(d=>d.userData.placed);t.forEach(o=>root.remove(o));draggables=draggables.filter(d=>!d.userData.placed);return t;
-}
-function regroupOnes(){
-  msg('10 آحاد تتحول إلى عشرة واحدة');
-  const t=draggables.filter(d=>d.userData.placed);
-  animateCollapse(t,()=>{removePlaced();const r=makeRod(0xe0ae3d);r.userData.placed=true;r.position.set(0,0,.14);r.scale.setScalar(.82);root.add(r);draggables=draggables.filter(x=>x!==r);msg('نكتب 5 ونحمل 1 إلى العشرات');nextBtn.style.display='inline-block'});
-}
-function regroupTens(){
-  msg('10 عشرات تتحول إلى مئة واحدة');
-  const t=draggables.filter(d=>d.userData.placed);
-  animateCollapse(t,()=>{removePlaced();const h=makeHundred(0x56aaf0);h.userData.placed=true;h.position.set(0,0,.10);h.scale.setScalar(.68);root.add(h);draggables=draggables.filter(x=>x!==h);msg('نكتب 2 ونحمل 1 إلى المئات');nextBtn.style.display='inline-block'});
-}
-function finish(){regrouping=true;msg('اكتمل التجميع');setTimeout(()=>success.classList.add('show'),600)}
 
 nextBtn.onclick=()=>{stage++;buildStage()};
-document.getElementById('restart').onclick=reset;
-document.getElementById('again').onclick=()=>{success.classList.remove('show');reset()};
-document.getElementById('reposition').onclick=()=>{anchored=false;root.visible=false;placeHint.style.display='block';msg('المسي الطاولة لتثبيت الخانات والمكعبات من جديد')};
-document.getElementById('help').onclick=()=>alert('الخانات واضحة أمامك: المئات باللون الأزرق، العشرات بالأخضر، والآحاد بالوردي. ابدئي بالخانة المضيئة، واسحبي قطعها إلى الدائرة. 10 آحاد تتحول إلى عشرة، و10 عشرات تتحول إلى مئة.');
-
-function reset(){stage=1;placed=0;regrouping=false;success.classList.remove('show');nextBtn.style.display='none';anchored=true;root.position.set(0,-.35,-4.3);root.scale.setScalar(.72);root.visible=true;placeHint.style.display='none';buildStage();msg('ابدئي بالآحاد: اسحبي المكعبات الصغيرة إلى الدائرة')}
+document.getElementById('restart').onclick=()=>{stage=1;buildStage()};
+document.getElementById('home').onclick=()=>{hud.style.display='none';start.style.display='flex'};
+document.getElementById('reposition').onclick=()=>{
+  root.position.set(0,-1.15,-5.35);root.scale.setScalar(.78);buildStage();
+};
 
 document.getElementById('startBtn').onclick=async()=>{
   hideError();
   try{
-    await openCamera();
-    if(!renderer)initThree();
-    start.style.display='none';hud.style.display='block';
-    anchored=true;root.position.set(0,-.35,-4.3);root.scale.setScalar(.72);root.visible=true;placeHint.style.display='none';
-    buildStage();msg('ابدئي بالآحاد: اسحبي المكعبات الصغيرة إلى الدائرة');
-  }catch(e){
-    showError('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا، ثم أعيدي المحاولة.');
-  }
+    await openCamera();if(!renderer)initThree();
+    start.style.display='none';hud.style.display='block';stage=1;buildStage();
+  }catch(e){showError('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}
 };
 
 function animate(){
   requestAnimationFrame(animate);
-  if(dropRing){const t=clock.getElapsedTime();dropRing.material.opacity=.68+.18*Math.sin(t*3);dropRing.scale.setScalar(1+.035*Math.sin(t*3));}
+  if(dropRing){const t=clock.getElapsedTime();dropRing.material.opacity=.62+.20*Math.sin(t*3);dropRing.scale.setScalar(1+.035*Math.sin(t*3))}
   renderer.render(scene,camera);
 }
 })();
