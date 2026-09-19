@@ -3,39 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>أصدقاء البيئة AR</title>
+<title>بطلات الجمع مع أصدقاء البيئة</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
-:root{--green:#1d9b62;--blue:#3479d0;--pink:#e45c87;--ink:#17375e}
+:root{--green:#6bcf9c;--blue:#7eb9ff;--pink:#f6a8c5;--ink:#5d4b7a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;touch-action:none}
 button{font:inherit}
 #camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0}
 #three{position:fixed;inset:0;width:100%;height:100%;z-index:1;touch-action:none}
-#start,#finish{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(10,35,25,.63);backdrop-filter:blur(7px)}
-.panel{width:min(92vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);color:#203a2d}
-.panel h1{margin:0 0 8px;color:#17734d;font-size:29px}.panel p{margin:8px 0;line-height:1.7;color:#53645b;font-weight:700}
-.problem{direction:ltr;font-size:42px;font-weight:900;color:#245fc1;margin:14px 0}.problem span{color:#da447d}
-.primary{width:100%;border:0;border-radius:17px;padding:15px 16px;background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff;font-size:19px;font-weight:900}
+#start,#finish{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(118,92,161,.28);backdrop-filter:blur(9px)}
+.panel{width:min(92vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);color:#5b4f6f}
+.panel h1{margin:0 0 8px;color:#d35f98;font-size:30px}.panel p{margin:8px 0;line-height:1.7;color:#6d6881;font-weight:700}
+.problem{direction:ltr;font-size:42px;font-weight:900;color:#6d7dff;margin:14px 0}.problem span{color:#f06ea8}
+.primary{width:100%;border:0;border-radius:17px;padding:15px 16px;background:linear-gradient(135deg,#f6a8c5,#8bbcff);color:#fff;font-size:19px;font-weight:900}
 #hud{position:fixed;inset:0;z-index:10;display:none;color:#fff;pointer-events:none}
 .top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:78px 1fr 78px;gap:7px;align-items:center}
-.chip{background:rgba(255,255,255,.94);color:#17375e;border:1px solid rgba(255,255,255,.7);padding:9px 6px;border-radius:16px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:13px}
-.title{font-size:17px;color:#166944}
+.chip{background:rgba(255,255,255,.94);color:#5d4b7a;border:1px solid rgba(255,255,255,.7);padding:9px 6px;border-radius:16px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:13px}
+.title{font-size:17px;color:#d35f98}
 .months{position:absolute;top:max(58px,calc(env(safe-area-inset-top) + 50px));left:50%;transform:translateX(-50%);width:min(94vw,640px);display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.month{border-radius:18px;padding:9px 8px;background:rgba(255,255,255,.95);box-shadow:0 7px 20px rgba(0,0,0,.17);text-align:center;color:#17375e}
-.month.one{outline:3px solid #79baff;background:#f2f8ff}.month.two{outline:3px solid #69d58e;background:#f0fff5;color:#17683f}
+.month{border-radius:18px;padding:9px 8px;background:rgba(255,255,255,.95);box-shadow:0 7px 20px rgba(0,0,0,.17);text-align:center;color:#5d4b7a}
+.month.one{outline:3px solid #f5a9c8;background:#fff3f8}.month.two{outline:3px solid #9cc8ff;background:#f2f7ff;color:#5d4b7a}
 .month strong{display:block;font-size:14px}.month span{display:block;font-size:24px;font-weight:900}
-#hint{position:absolute;left:50%;bottom:calc(205px + max(10px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(90vw,560px);background:rgba(255,255,255,.95);color:#17375e;border-radius:999px;padding:9px 14px;text-align:center;font-size:13px;font-weight:900;box-shadow:0 7px 20px rgba(0,0,0,.18)}
+#hint{position:absolute;left:50%;bottom:calc(205px + max(10px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(90vw,560px);background:rgba(255,255,255,.95);color:#5d4b7a;border-radius:999px;padding:9px 14px;text-align:center;font-size:13px;font-weight:900;box-shadow:0 7px 20px rgba(0,0,0,.18)}
 .dropWrap{position:absolute;left:8px;right:8px;bottom:calc(53px + max(8px,env(safe-area-inset-bottom)));display:grid;grid-template-columns:repeat(3,1fr);gap:7px;pointer-events:auto}
-.drop{min-height:133px;border-radius:18px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#17375e;box-shadow:0 8px 22px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.8);transition:.15s transform,.15s box-shadow}
-.drop.h{background:linear-gradient(#d4f8dc,#9ee8af)}.drop.t{background:linear-gradient(#e0f1ff,#abd5ff)}.drop.o{background:linear-gradient(#ffe0eb,#f7aec6)}
+.drop{min-height:133px;border-radius:18px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#5d4b7a;box-shadow:0 8px 22px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.8);transition:.15s transform,.15s box-shadow}
+.drop.h{background:linear-gradient(#f7eaff,#d9c8ff)}.drop.t{background:linear-gradient(#e8f3ff,#c9e0ff)}.drop.o{background:linear-gradient(#ffe8f1,#ffc7dd)}
 .drop.hot{transform:scale(1.04);box-shadow:0 0 0 4px rgba(255,255,255,.55),0 10px 28px rgba(0,0,0,.22)}
 .drop .icon{font-size:29px}.drop .label{font-size:13px;font-weight:900}.drop .val{font-size:13px;font-weight:900}.drop .count{font-size:27px;font-weight:900;margin-top:2px}
 .drop .target{margin-top:auto;width:82%;height:36px;border:3px dashed rgba(255,255,255,.95);border-radius:12px}
 .regroup{position:absolute;left:50%;bottom:calc(8px + max(6px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(68vw,440px);display:grid;grid-template-columns:1fr 1fr;gap:6px;pointer-events:auto}
-.rbtn{border:0;border-radius:14px;padding:8px 6px;font-weight:900;font-size:11px;background:#fff4cf;color:#385066;box-shadow:0 5px 14px rgba(0,0,0,.17);opacity:.45}
-.rbtn.ready{opacity:1;background:#ffe39a}
-#finish{display:none}.finishScore{font-size:46px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#eff6f1;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
+.rbtn{border:0;border-radius:14px;padding:8px 6px;font-weight:900;font-size:11px;background:#fff6d9;color:#6a5f76;box-shadow:0 5px 14px rgba(0,0,0,.17);opacity:.45}
+.rbtn.ready{opacity:1;background:#ffd9ea}
+#finish{display:none}.finishScore{font-size:46px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#f7eef8;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
 #err{position:fixed;z-index:50;left:14px;right:14px;bottom:18px;display:none;background:#fff3cd;color:#594900;padding:13px;border-radius:14px;text-align:center;font-weight:800}
 @media(max-width:430px){
  .top{grid-template-columns:70px 1fr 70px}.chip{font-size:11px}.title{font-size:15px}
@@ -60,27 +60,27 @@ button{font:inherit}
 
 <div id="start">
  <div class="panel">
-  <h1>🌍 أصدقاء البيئة</h1>
-  <p>تظهر أمامكِ 6 قطع كبيرة فقط تمثل الشهرين، حتى يكون النشاط واضحًا على الجوال والآيباد.</p>
+  <h1>🌸 بطلات الجمع</h1>
+  <p>مهمتكِ يا بطلة: اجمعي قطع الشهرين وضعي كل قطعة في مكانها الصحيح.</p>
   <div class="problem">178 + <span>236</span></div>
-  <p style="font-size:13px">كل قطعة عليها عددها: ×1 أو ×2 للمئات، ×7 أو ×3 للعشرات، ×8 أو ×6 للآحاد.</p>
-  <button id="startBtn" class="primary">ابدئي النشاط</button>
+  <p style="font-size:13px">الصندوق يمثل المئات، والحزمة تمثل العشرات، والعلبة تمثل الآحاد.</p>
+  <button id="startBtn" class="primary">ابدئي اللعب</button>
  </div>
 </div>
 
 <div id="hud">
  <div class="top">
-  <div id="score" class="chip">⭐ 0</div>
-  <div class="chip title">🌿 أصدقاء البيئة 🌍</div>
+  <div id="score" class="chip">⭐ نقاطي 0</div>
+  <div class="chip title">✨ بطلات الجمع ✨</div>
   <div id="timer" class="chip">⏱ 02:30</div>
  </div>
 
  <div class="months">
-  <div class="month one"><strong>الشهر الأول</strong><span>178</span></div>
-  <div class="month two"><strong>الشهر الثاني</strong><span>236</span></div>
+  <div class="month one"><strong>الشهر الأول 🌷</strong><span>178</span></div>
+  <div class="month two"><strong>الشهر الثاني 🌼</strong><span>236</span></div>
  </div>
 
- <div id="hint">اسحبي كل قطعة كبيرة إلى الخانة المناسبة</div>
+ <div id="hint">اسحبي كل قطعة إلى المكان المناسب يا بطلة</div>
 
  <div class="dropWrap">
   <div id="zone100" class="drop h" data-value="100"><div class="icon">🟩</div><div class="label">المئات</div><div class="val">100</div><div id="c100" class="count">0</div><div class="target"></div></div>
@@ -97,12 +97,12 @@ button{font:inherit}
 <div id="finish">
  <div class="panel">
   <div style="font-size:44px">🌍✨</div>
-  <h1 id="finishTitle">أحسنتِ!</h1>
-  <p id="finishText">جمعتِ قطع الشهرين وأعدتِ التجميع بشكل صحيح.</p>
+  <h1 id="finishTitle">رائعة يا بطلة!</h1>
+  <p id="finishText">أكملتِ النشاط بنجاح ووصلتِ إلى الناتج الصحيح.</p>
   <div class="finishScore">414 علبة</div>
   <div class="problem" style="font-size:30px">178 + 236 = <span style="color:#148254">414</span></div>
   <div class="stats"><span id="finalTime">⏱ 00:00</span><span id="finalErrors">✖ 0 أخطاء</span><span id="finalScore">⭐ 0</span></div>
-  <button id="again" class="primary">إعادة النشاط</button>
+  <button id="again" class="primary">العبي مرة أخرى</button>
  </div>
 </div>
 <div id="err"></div>
@@ -132,8 +132,8 @@ function initThree(){
  root=new THREE.Group();scene.add(root);positionRoot();
  window.addEventListener('resize',resize);canvas.addEventListener('pointerdown',down,{passive:false});canvas.addEventListener('pointermove',move,{passive:false});canvas.addEventListener('pointerup',up,{passive:false});canvas.addEventListener('pointercancel',up,{passive:false});animate()
 }
-function positionRoot(){const mobile=innerWidth<600;root.position.set(0,mobile?-.15:.05,mobile?-5.2:-5.0);root.rotation.x=-.12;root.scale.setScalar(mobile?.83:1)}
-function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false);positionRoot()}
+function positionRoot(){const mobile=innerWidth<600;root.position.set(0,mobile?-.08:.02,mobile?-6.2:-5.8);root.rotation.x=-.08;root.scale.setScalar(mobile?.72:.85)}
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false);positionRoot();if(objects.length)arrange()}
 function mat(c,r=.30){return new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.08})}
 function labelSprite(text,bg,scale=.8){
  const c=document.createElement('canvas');c.width=320;c.height=110;const x=c.getContext('2d');x.fillStyle=bg;x.beginPath();x.roundRect(4,4,312,102,24);x.fill();x.fillStyle='#fff';x.font='bold 48px Tahoma,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,160,58);
@@ -146,17 +146,17 @@ function can(color=0xd94b4b,scale=1){
  const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.78,.012*scale,8,24),mat(0x9da7ad,.15));ring.rotation.x=Math.PI/2;ring.position.y=h/2+.025*scale;g.add(ring);return g
 }
 function oneGroup(q,month){
- const g=new THREE.Group();g.add(can(month===1?0xd94b4b:0xe66b98,1.12));const badge=labelSprite('×'+q,month===1?'#d64a4a':'#d84f88',.78);badge.position.set(.22,.30,.08);g.add(badge);tag(g,1,q,month);return g
+ const g=new THREE.Group();g.add(can(month===1?0xd94b4b:0xe66b98,1.00));const badge=labelSprite('×'+q,month===1?'#d64a4a':'#d84f88',.78);badge.position.set(.22,.30,.08);g.add(badge);tag(g,1,q,month);return g
 }
 function tenGroup(q,month){
  const g=new THREE.Group();const positions=[[-.18,0,-.10],[0,0,-.10],[.18,0,-.10],[-.09,0,.11],[.09,0,.11]];
- positions.forEach(p=>{const c=can(month===1?0x2f78d1:0x4096e5,.76);c.position.set(...p);g.add(c)});
+ positions.forEach(p=>{const c=can(month===1?0x2f78d1:0x4096e5,.70);c.position.set(...p);g.add(c)});
  const tray=new THREE.Mesh(new THREE.BoxGeometry(.52,.11,.34),new THREE.MeshStandardMaterial({color:0xc89d5e,roughness:.55}));tray.position.y=-.04;g.add(tray);
  const val=labelSprite('10','#2f79d2',.60);val.position.set(-.18,.35,.06);g.add(val);
  const badge=labelSprite('×'+q,'#17375e',.70);badge.position.set(.20,.35,.06);g.add(badge);tag(g,10,q,month);return g
 }
 function hundredGroup(q,month){
- const g=new THREE.Group();for(let z=-1;z<=1;z++)for(let x=-2;x<=2;x++){const c=can(0xdce4e7,.50);c.position.set(x*.11,.07,z*.12);g.add(c)}
+ const g=new THREE.Group();for(let z=-1;z<=1;z++)for(let x=-2;x<=2;x++){const c=can(0xdce4e7,.42);c.position.set(x*.11,.07,z*.12);g.add(c)}
  const box=new THREE.Mesh(new THREE.BoxGeometry(.70,.38,.54),new THREE.MeshStandardMaterial({color:month===1?0x168b52:0x27a665,roughness:.5,transparent:true,opacity:.93}));box.position.y=-.15;box.castShadow=true;g.add(box);
  const val=labelSprite('100','#188457',.62);val.position.set(-.18,.46,.06);g.add(val);
  const badge=labelSprite('×'+q,'#17375e',.70);badge.position.set(.23,.46,.06);g.add(badge);tag(g,100,q,month);return g
@@ -170,8 +170,8 @@ function build(){
 }
 function arrange(){
  const mobile=innerWidth<600;
- const pos=mobile?[[-1.35,.95],[-1.35,.10],[-1.35,-.78],[1.35,.95],[1.35,.10],[1.35,-.78]]:[[-1.65,1.00],[-1.65,.05],[-1.65,-.90],[1.65,1.00],[1.65,.05],[1.65,-.90]];
- objects.forEach((o,i)=>{if(o.userData.collected){o.visible=false;return}o.visible=true;o.position.set(pos[i][0],pos[i][1],.06);o.userData.home.copy(o.position);o.scale.setScalar(o.userData.value===100?.92:o.userData.value===10?.95:1.08);if(!o.parent)root.add(o)})
+ const pos=mobile?[[-1.00,.92],[-1.00,.12],[-1.00,-.64],[1.00,.92],[1.00,.12],[1.00,-.64]]:[[-1.35,.95],[-1.35,.10],[-1.35,-.78],[1.35,.95],[1.35,.10],[1.35,-.78]];
+ objects.forEach((o,i)=>{if(o.userData.collected){o.visible=false;return}o.visible=true;o.position.set(pos[i][0],pos[i][1],.06);o.userData.home.copy(o.position);o.scale.setScalar(o.userData.value===100?.82:o.userData.value===10?.86:.95);if(!o.parent)root.add(o)})
 }
 function setPointer(x,y){const r=canvas.getBoundingClientRect();pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1}
 function findRoot(o){let n=o;while(n){if(n.userData&&n.userData.dragRoot)return n.userData.dragRoot;n=n.parent}return null}
@@ -187,29 +187,29 @@ function move(e){
 function up(e){
  Object.values(zones).forEach(z=>z.classList.remove('hot'));if(!dragging)return;const d=dragging;dragging=null;d.scale.divideScalar(1.08);
  const target=findZoneAt(e.clientX,e.clientY);
- if(target){if(+d.userData.value===target)collect(d,target);else{errors++;score=Math.max(0,score-1);updateHud();hint.textContent='❌ هذه الخانة غير مناسبة، حاولي مرة أخرى';d.position.copy(d.userData.home)}}else d.position.copy(d.userData.home)
+ if(target){if(+d.userData.value===target)collect(d,target);else{errors++;score=Math.max(0,score-1);updateHud();hint.textContent='❌ هذا المكان غير صحيح، حاولي مرة أخرى يا بطلة';d.position.copy(d.userData.home)}}else d.position.copy(d.userData.home)
 }
 function findZoneAt(x,y){for(const [v,z] of Object.entries(zones)){const r=z.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return +v}return null}
 function collect(o,value){
- o.userData.collected=true;counts[value]+=o.userData.qty;score+=3;updateHud();updateButtons();hint.textContent='✅ ممتاز! أضيفت '+o.userData.qty+' إلى خانة '+(value===100?'المئات':value===10?'العشرات':'الآحاد');
+ o.userData.collected=true;counts[value]+=o.userData.qty;score+=3;updateHud();updateButtons();hint.textContent='✅ أحسنتِ! أضفتِ '+o.userData.qty+' إلى خانة '+(value===100?'المئات':value===10?'العشرات':'الآحاد');
  animateCollect(o,()=>{o.visible=false;checkAll()})
 }
 function animateCollect(o,done){const a=o.position.clone(),b=new THREE.Vector3(0,-1.30,.08),st=performance.now(),dur=260;function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(a,b,e);if(k<1)requestAnimationFrame(tick);else done()}requestAnimationFrame(tick)}
-function updateHud(){scoreEl.textContent='⭐ '+score;countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100]}
+function updateHud(){scoreEl.textContent='⭐ نقاطي '+score;countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100]}
 function updateButtons(){regroup1.classList.toggle('ready',counts[1]>=10);regroup10.classList.toggle('ready',counts[10]>=10)}
-function checkAll(){if(objects.every(o=>o.userData.collected)){hint.textContent='✅ جُمعت قطع الشهرين — الآن أعيدي التجميع';checkFinish()}}
-function regroupOnes(){if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;updateHud();updateButtons();hint.textContent='✨ 10 آحاد أصبحت عشرة واحدة';checkFinish()}
-function regroupTens(){if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;updateHud();updateButtons();hint.textContent='✨ 10 عشرات أصبحت مئة واحدة';checkFinish()}
+function checkAll(){if(objects.every(o=>o.userData.collected)){hint.textContent='✅ انتهيتِ من جمع القطع، الآن أعيدي التجميع';checkFinish()}}
+function regroupOnes(){if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;updateHud();updateButtons();hint.textContent='✨ أحسنتِ! 10 آحاد أصبحت عشرة واحدة';checkFinish()}
+function regroupTens(){if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;updateHud();updateButtons();hint.textContent='✨ ممتاز! 10 عشرات أصبحت مئة واحدة';checkFinish()}
 function checkFinish(){if(objects.every(o=>o.userData.collected)&&counts[100]===4&&counts[10]===1&&counts[1]===4){clearInterval(timer);setTimeout(endGame,350)}}
 function endGame(){
  hud.style.display='none';finish.style.display='flex';
  const used=150-timeLeft,mm=String(Math.floor(used/60)).padStart(2,'0'),ss=String(used%60).padStart(2,'0');
- document.getElementById('finalTime').textContent='⏱ '+mm+':'+ss;document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';document.getElementById('finalScore').textContent='⭐ '+score
+ document.getElementById('finalTime').textContent='⏱ '+mm+':'+ss;document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';document.getElementById('finalScore').textContent='⭐ نقاطي '+score
 }
 function renderTime(){const m=String(Math.floor(timeLeft/60)).padStart(2,'0'),s=String(timeLeft%60).padStart(2,'0');timerEl.textContent='⏱ '+m+':'+s}
 function reset(){
  counts={1:0,10:0,100:0};score=0;errors=0;timeLeft=150;updateHud();updateButtons();build();clearInterval(timer);renderTime();
- timer=setInterval(()=>{timeLeft--;renderTime();if(timeLeft<=0){clearInterval(timer);finish.style.display='flex';hud.style.display='none';document.getElementById('finishTitle').textContent='انتهى الوقت';document.getElementById('finishText').textContent='أعيدي المحاولة واكملي التجميع حتى تصلي إلى 414.'}},1000)
+ timer=setInterval(()=>{timeLeft--;renderTime();if(timeLeft<=0){clearInterval(timer);finish.style.display='flex';hud.style.display='none';document.getElementById('finishTitle').textContent='انتهى الوقت';document.getElementById('finishText').textContent='جربي مرة أخرى يا بطلة حتى تصلي إلى 414.'}},1000)
 }
 regroup1.onclick=regroupOnes;regroup10.onclick=regroupTens;
 document.getElementById('startBtn').onclick=async()=>{hideErr();try{await openCamera();if(!renderer)initThree();start.style.display='none';finish.style.display='none';hud.style.display='block';reset()}catch(e){showErr('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}};
