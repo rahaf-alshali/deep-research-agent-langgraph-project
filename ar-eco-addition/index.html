@@ -6,34 +6,52 @@
 <title>أصدقاء البيئة AR</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
+:root{--green:#1b9d62;--blue:#2f79d2;--pink:#e85b8d;--ink:#17375e}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;touch-action:none}
+button{font:inherit}
 #camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0}
 #three{position:fixed;inset:0;width:100%;height:100%;z-index:1;touch-action:none}
-#start,#finish{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 15%,rgba(214,247,231,.96),rgba(31,103,72,.94) 52%,rgba(5,28,20,.98) 100%)}
-.card{width:min(94vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 25px 75px rgba(0,0,0,.35);color:#183628}
-.card h1{margin:0 0 8px;font-size:28px;color:#17734d}.card p{margin:8px 0;line-height:1.7;color:#4c5c53;font-weight:700}
-.problem{direction:ltr;font-size:42px;font-weight:900;margin:15px 0;color:#215fc1}.problem span{color:#d7447d}
-.primary{width:100%;border:0;border-radius:17px;padding:15px 16px;background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff;font-size:19px;font-weight:900;box-shadow:0 8px 20px rgba(21,152,95,.25)}
-#hud{position:fixed;inset:0;z-index:10;display:none;pointer-events:none;color:#fff}
-.top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:70px 1fr 70px;gap:7px;align-items:center}
-.chip{background:rgba(8,40,28,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(9px);padding:9px 7px;border-radius:15px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:13px}
-.title{font-size:15px}
-.monthTabs{position:absolute;top:max(55px,calc(env(safe-area-inset-top) + 47px));left:50%;transform:translateX(-50%);display:flex;gap:7px;pointer-events:auto}
-.monthBtn{border:0;border-radius:999px;padding:8px 13px;font-weight:900;background:rgba(255,255,255,.90);color:#264d39;box-shadow:0 5px 15px rgba(0,0,0,.17)}
-.monthBtn.active{background:#188457;color:#fff}
-#message{position:absolute;top:max(98px,calc(env(safe-area-inset-top) + 90px));left:50%;transform:translateX(-50%);width:min(88vw,520px);background:rgba(255,255,255,.93);color:#183628;border-radius:14px;padding:8px 12px;text-align:center;font-weight:900;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
-.bottom{position:absolute;bottom:max(10px,env(safe-area-inset-bottom));left:8px;right:8px;display:flex;justify-content:center;gap:7px;pointer-events:auto;flex-wrap:wrap}
-.action{border:0;border-radius:999px;padding:9px 12px;font-weight:900;color:#fff;background:rgba(8,40,28,.78);border:1px solid rgba(255,255,255,.22)}
-.action.ready{background:linear-gradient(135deg,#efad2e,#df6b3e)}
-.action:disabled{opacity:.45}
-#legend{position:absolute;right:8px;bottom:max(58px,calc(env(safe-area-inset-bottom) + 48px));background:rgba(255,255,255,.92);color:#183628;border-radius:14px;padding:7px 9px;font-weight:900;font-size:11px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+#start,#finish,#helpBox{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(12,35,26,.64);backdrop-filter:blur(8px)}
+.panel{width:min(92vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);color:#21372c}
+.panel h1{margin:0 0 8px;color:#17734d;font-size:29px}.panel p{margin:8px 0;line-height:1.75;color:#53645b;font-weight:700}
+.problem{direction:ltr;font-size:42px;font-weight:900;color:#245fc1;margin:14px 0}.problem span{color:#da447d}
+.primary,.secondary{width:100%;border:0;border-radius:17px;padding:14px 16px;font-weight:900;font-size:18px}
+.primary{background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff}.secondary{margin-top:10px;background:#eef3f0;color:#355446}
+#hud{position:fixed;inset:0;z-index:10;display:none;color:#fff;pointer-events:none}
+.top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:86px 1fr 86px;gap:8px;align-items:center}
+.topchip{background:rgba(255,255,255,.94);color:#17375e;border:1px solid rgba(255,255,255,.7);padding:9px 7px;border-radius:18px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:14px}
+.title{font-size:18px;color:#166944}
+.months{position:absolute;top:max(60px,calc(env(safe-area-inset-top) + 52px));left:50%;transform:translateX(-50%);width:min(88vw,520px);display:grid;grid-template-columns:1fr 1fr;gap:8px;pointer-events:auto}
+.month{border:0;border-radius:18px;padding:10px 8px;background:rgba(255,255,255,.94);box-shadow:0 7px 20px rgba(0,0,0,.18);font-weight:900;color:#17375e}
+.month strong{display:block;font-size:14px}.month span{display:block;font-size:25px;margin-top:2px}
+.month.active.one{outline:3px solid #77b7ff;background:#f0f7ff}.month.active.two{outline:3px solid #60d487;background:#effff4;color:#17683f}
+#instruction{position:absolute;left:50%;bottom:calc(225px + max(10px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(88vw,520px);background:rgba(255,255,255,.94);color:#17375e;border-radius:999px;padding:10px 16px;text-align:center;font-weight:900;box-shadow:0 7px 22px rgba(0,0,0,.2);font-size:14px}
+.dropWrap{position:absolute;left:8px;right:8px;bottom:calc(62px + max(8px,env(safe-area-inset-bottom)));display:grid;grid-template-columns:repeat(3,1fr);gap:7px;pointer-events:auto}
+.drop{border:2px solid rgba(255,255,255,.7);border-radius:18px;min-height:145px;padding:8px 6px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#17375e;position:relative}
+.drop.h{background:linear-gradient(#c9f6d3,#94e8a7)}.drop.t{background:linear-gradient(#d6edff,#9ed0ff)}.drop.o{background:linear-gradient(#ffd8e6,#f6a5c2)}
+.drop .icon{font-size:28px;line-height:1}.drop .label{font-size:14px;font-weight:900;margin-top:2px}.drop .val{font-size:15px;font-weight:900}.drop .count{font-size:25px;font-weight:900;margin-top:4px}
+.drop .target{position:absolute;left:10px;right:10px;bottom:10px;height:45px;border:3px dashed rgba(255,255,255,.9);border-radius:12px}
+.drop.hot{transform:scale(1.03);box-shadow:0 0 0 4px rgba(255,255,255,.45),0 10px 28px rgba(0,0,0,.23)}
+.regroup{position:absolute;left:50%;bottom:calc(13px + max(6px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(72vw,430px);display:grid;grid-template-columns:1fr 1fr;gap:8px;pointer-events:auto}
+.rbtn{border:0;border-radius:15px;padding:9px 8px;font-weight:900;font-size:12px;color:#273b55;background:#fff5d7;box-shadow:0 5px 15px rgba(0,0,0,.18);opacity:.45}
+.rbtn.ready{opacity:1;background:#fff0bf}
+.corner{position:absolute;bottom:calc(10px + max(8px,env(safe-area-inset-bottom)));width:54px;height:54px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#17375e;font-size:12px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,.18);pointer-events:auto}
+#undo{left:10px}#help{right:10px}
 #finish{display:none}.finishScore{font-size:45px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#eff6f1;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
-#err{position:fixed;z-index:40;left:14px;right:14px;bottom:18px;display:none;background:#fff3cd;color:#594900;padding:13px;border-radius:14px;text-align:center;font-weight:800}
+#helpBox{display:none}.helpText{text-align:right;line-height:1.8}
+#err{position:fixed;z-index:50;left:14px;right:14px;bottom:18px;display:none;background:#fff3cd;color:#594900;padding:13px;border-radius:14px;text-align:center;font-weight:800}
+@media(max-width:430px){
+ .top{grid-template-columns:76px 1fr 76px}.topchip{font-size:12px;padding:8px 5px}.title{font-size:16px}
+ .months{top:max(56px,calc(env(safe-area-inset-top) + 48px));width:90vw}.month{padding:8px 6px}.month span{font-size:22px}
+ #instruction{bottom:calc(205px + max(8px,env(safe-area-inset-bottom)));font-size:12px}
+ .dropWrap{bottom:calc(58px + max(6px,env(safe-area-inset-bottom)));gap:5px}.drop{min-height:128px;padding:7px 4px}.drop .icon{font-size:24px}.drop .label{font-size:12px}.drop .val{font-size:13px}.drop .count{font-size:22px}.drop .target{height:40px;left:7px;right:7px;bottom:8px}
+ .regroup{width:66vw;gap:5px}.rbtn{font-size:10px;padding:8px 5px}.corner{width:48px;height:48px;font-size:11px}
+}
 @media(min-width:700px){
- .top{left:5vw;right:5vw}.chip{font-size:15px;padding:10px}.title{font-size:18px}
- .monthBtn{font-size:16px;padding:9px 16px}#message{font-size:15px}
- #legend{font-size:13px;right:5vw}.action{font-size:15px;padding:10px 15px}
+ .top{left:6vw;right:6vw}.months{width:min(66vw,620px)}#instruction{width:min(60vw,620px);font-size:16px;bottom:calc(265px + max(10px,env(safe-area-inset-bottom)))}
+ .dropWrap{left:8vw;right:8vw;bottom:calc(76px + max(8px,env(safe-area-inset-bottom)));gap:12px}.drop{min-height:180px}.drop .icon{font-size:36px}.drop .label{font-size:18px}.drop .val{font-size:18px}.drop .count{font-size:32px}.drop .target{height:60px}
+ .regroup{bottom:calc(16px + max(8px,env(safe-area-inset-bottom)));width:min(55vw,540px)}.rbtn{font-size:15px}.corner{width:60px;height:60px}
 }
 </style>
 </head>
@@ -42,172 +60,214 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-f
 <canvas id="three"></canvas>
 
 <div id="start">
-  <div class="card">
-    <h1>♻️ أصدقاء البيئة</h1>
-    <p>ستظهر العلب أمامكِ فوق البيئة الحقيقية. اسحبي كل مجموعة إلى خانة القيمة المنزلية الصحيحة، ثم أعيدي التجميع.</p>
-    <div class="problem">178 + <span>236</span></div>
-    <p style="font-size:13px">العلبة = 1، حزمة العلب = 10، صندوق العلب = 100.</p>
-    <button id="startBtn" class="primary">ابدئي الواقع المعزز</button>
-  </div>
+ <div class="panel">
+  <h1>🌍 أصدقاء البيئة</h1>
+  <p>ستظهر العلب أمامكِ فوق البيئة الحقيقية. اسحبي كل نوع إلى خانة القيمة المنزلية الصحيحة، ثم أعيدي التجميع.</p>
+  <div class="problem">178 + <span>236</span></div>
+  <p style="font-size:13px">الصندوق الأخضر = 100، الحزمة الزرقاء = 10، العلبة الحمراء = 1.</p>
+  <button id="startBtn" class="primary">ابدئي النشاط</button>
+ </div>
 </div>
 
 <div id="hud">
-  <div class="top">
-    <div id="time" class="chip">⏱ 0ث</div>
-    <div class="chip title">تحدي أصدقاء البيئة</div>
-    <div id="score" class="chip">⭐ 0</div>
-  </div>
-  <div class="monthTabs">
-    <button id="m1" class="monthBtn active">الشهر الأول 178</button>
-    <button id="m2" class="monthBtn">الشهر الثاني 236</button>
-  </div>
-  <div id="message">اسحبي العلب أمامكِ إلى الدوائر المناسبة: مئات، عشرات، آحاد.</div>
-  <div id="legend">🟩 100 = مئة<br>🟦 10 = عشرة<br>🥫 1 = آحاد</div>
-  <div class="bottom">
-    <button id="regroupTens" class="action" disabled>10 عشرات ← مئة</button>
-    <button id="regroupOnes" class="action" disabled>10 آحاد ← عشرة</button>
-    <button id="resetView" class="action">إعادة تمركز</button>
-  </div>
+ <div class="top">
+  <div id="score" class="topchip">⭐ 0 نقاط</div>
+  <div class="topchip title">🌿 أصدقاء البيئة 🌍</div>
+  <div id="timer" class="topchip">⏱ 02:30</div>
+ </div>
+
+ <div class="months">
+  <button id="m1" class="month one active"><strong>الشهر الأول</strong><span>178</span></button>
+  <button id="m2" class="month two"><strong>الشهر الثاني</strong><span>236</span></button>
+ </div>
+
+ <div id="instruction">☝️ اسحبي العلب إلى الخانة المناسبة</div>
+
+ <div class="dropWrap">
+  <div id="zone100" class="drop h" data-value="100"><div class="icon">🟩</div><div class="label">المئات</div><div class="val">100</div><div id="c100" class="count">0</div><div class="target"></div></div>
+  <div id="zone10" class="drop t" data-value="10"><div class="icon">🟦</div><div class="label">العشرات</div><div class="val">10</div><div id="c10" class="count">0</div><div class="target"></div></div>
+  <div id="zone1" class="drop o" data-value="1"><div class="icon">🥫</div><div class="label">الآحاد</div><div class="val">1</div><div id="c1" class="count">0</div><div class="target"></div></div>
+ </div>
+
+ <div class="regroup">
+  <button id="regroup10" class="rbtn">🟦 10 عشرات ← مئة</button>
+  <button id="regroup1" class="rbtn">🥫 10 آحاد ← عشرة</button>
+ </div>
+
+ <button id="undo" class="corner">↶<br>تراجع</button>
+ <button id="help" class="corner">؟<br>مساعدة</button>
 </div>
 
 <div id="finish">
-  <div class="card">
-    <div style="font-size:44px">🌍✨</div>
-    <h1>أحسنتِ يا صديقة البيئة!</h1>
-    <p>بعد الجمع وإعادة التجميع أصبح لدينا:</p>
-    <div class="finishScore">414 علبة</div>
-    <div class="problem" style="font-size:30px">178 + 236 = <span style="color:#148254">414</span></div>
-    <div class="stats"><span id="finalTime">⏱ 0ث</span><span id="finalErrors">✖ 0 أخطاء</span><span id="finalScore">⭐ 0</span></div>
-    <button id="again" class="primary">إعادة النشاط</button>
+ <div class="panel">
+  <div style="font-size:44px">🌍✨</div>
+  <h1 id="finishTitle">أحسنتِ!</h1>
+  <p id="finishText">اكتمل النشاط.</p>
+  <div id="finalResult" class="finishScore">414 علبة</div>
+  <div class="problem" style="font-size:30px">178 + 236 = <span style="color:#148254">414</span></div>
+  <div class="stats"><span id="finalTime">⏱ 00:00</span><span id="finalErrors">✖ 0 أخطاء</span><span id="finalScore">⭐ 0</span></div>
+  <button id="again" class="primary">إعادة النشاط</button>
+ </div>
+</div>
+
+<div id="helpBox">
+ <div class="panel">
+  <h1>طريقة اللعب</h1>
+  <div class="helpText">
+   1. اختاري الشهر الأول أو الثاني.<br>
+   2. اسحبي الصندوق الأخضر إلى <b>المئات</b>.<br>
+   3. اسحبي الحزمة الزرقاء إلى <b>العشرات</b>.<br>
+   4. اسحبي العلبة الحمراء إلى <b>الآحاد</b>.<br>
+   5. عندما يصبح لديكِ 10 آحاد أعيدي تجميعها إلى عشرة، و10 عشرات إلى مئة.
   </div>
+  <button id="closeHelp" class="primary" style="margin-top:15px">فهمت</button>
+ </div>
 </div>
 <div id="err"></div>
 
 <script>
 (function(){
-const video=document.getElementById('camera'),canvas=document.getElementById('three'),start=document.getElementById('start'),hud=document.getElementById('hud'),finish=document.getElementById('finish'),msg=document.getElementById('message'),scoreEl=document.getElementById('score'),timeEl=document.getElementById('time'),err=document.getElementById('err');
-const m1=document.getElementById('m1'),m2=document.getElementById('m2'),regroupOnes=document.getElementById('regroupOnes'),regroupTens=document.getElementById('regroupTens');
+const video=document.getElementById('camera'),canvas=document.getElementById('three'),start=document.getElementById('start'),hud=document.getElementById('hud'),finish=document.getElementById('finish'),helpBox=document.getElementById('helpBox'),err=document.getElementById('err');
+const scoreEl=document.getElementById('score'),timerEl=document.getElementById('timer'),instruction=document.getElementById('instruction');
+const countEls={1:document.getElementById('c1'),10:document.getElementById('c10'),100:document.getElementById('c100')};
+const zones={1:document.getElementById('zone1'),10:document.getElementById('zone10'),100:document.getElementById('zone100')};
+const m1=document.getElementById('m1'),m2=document.getElementById('m2'),regroup1=document.getElementById('regroup1'),regroup10=document.getElementById('regroup10');
 
-let renderer,scene,camera,root,dropZones={},currentMonth=1,selected=null,dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
-let itemsByMonth={1:[],2:[]},doneByMonth={1:false,2:false},counts={1:0,10:0,100:0},score=0,errors=0,elapsed=0,timer=null;
+let renderer,scene,camera,root,currentMonth=1,dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
+let items={1:[],2:[]},counts={1:0,10:0,100:0},done={1:false,2:false},score=0,errors=0,timeLeft=150,timer=null,history=[];
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 
-function setMessage(t,bad=false){msg.textContent=t;msg.style.background=bad?'rgba(255,230,235,.95)':'rgba(255,255,255,.93)';msg.style.color=bad?'#a9365d':'#183628'}
-function showErr(t){err.textContent=t;err.style.display='block'} function hideErr(){err.style.display='none'}
+function showErr(t){err.textContent=t;err.style.display='block'}function hideErr(){err.style.display='none'}
 async function openCamera(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('camera');
- const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
- video.srcObject=s;await video.play();
+ const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
+ video.srcObject=stream;await video.play();
 }
-
 function initThree(){
- renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
- renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,100);camera.position.set(0,0,0);
- scene.add(new THREE.HemisphereLight(0xffffff,0x4a4d4b,1.7));const dl=new THREE.DirectionalLight(0xfff1da,2.3);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
+ renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);camera.position.set(0,0,0);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x4a4d4b,1.75));const dl=new THREE.DirectionalLight(0xfff1db,2.25);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
  root=new THREE.Group();scene.add(root);positionRoot();
- window.addEventListener('resize',resize);
- canvas.addEventListener('pointerdown',down,{passive:false});canvas.addEventListener('pointermove',move,{passive:false});canvas.addEventListener('pointerup',up,{passive:false});canvas.addEventListener('pointercancel',up,{passive:false});
- animate();
+ window.addEventListener('resize',resize);canvas.addEventListener('pointerdown',down,{passive:false});canvas.addEventListener('pointermove',move,{passive:false});canvas.addEventListener('pointerup',up,{passive:false});canvas.addEventListener('pointercancel',up,{passive:false});animate();
 }
-function positionRoot(){
- const narrow=innerWidth<600;root.position.set(0,narrow?-0.55:-0.25,narrow?-5.3:-5.0);root.rotation.x=-0.28;root.scale.setScalar(narrow?.78:1.0);
-}
+function positionRoot(){const mobile=innerWidth<600;root.position.set(0,mobile?-.15:.05,mobile?-5.4:-5.0);root.rotation.x=-.15;root.scale.setScalar(mobile?.78:1)}
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false);positionRoot()}
-function mat(c,rough=.36){return new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:.04})}
+function mat(c,r=.32){return new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.08})}
 
-function makeLabel(text,bg){
- const c=document.createElement('canvas');c.width=360;c.height=110;const x=c.getContext('2d');
- x.fillStyle=bg;x.beginPath();x.roundRect(4,4,352,102,24);x.fill();x.fillStyle='#fff';x.font='bold 48px Tahoma,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,180,58);
- const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.95,.29,1);return s
+function can(color=0xd94b4b,scale=.95){
+ const g=new THREE.Group(),r=.10*scale,h=.36*scale;
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,28),mat(color,.25));body.castShadow=true;g.add(body);
+ const top=new THREE.Mesh(new THREE.CylinderGeometry(r*.96,r*.96,.018*scale,28),mat(0xd9dee2,.15));top.position.y=h/2+.009*scale;g.add(top);
+ const bottom=top.clone();bottom.position.y=-h/2-.009*scale;g.add(bottom);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.78,.009*scale,8,24),mat(0x9da7ad,.15));ring.rotation.x=Math.PI/2;ring.position.y=h/2+.02*scale;g.add(ring);
+ return g
 }
-function canMesh(color=0xe84f87,small=false){
- const g=new THREE.Group();const r=small?.052:.075,h=small?.18:.25;
- const body=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,20),mat(color,.28));body.castShadow=true;g.add(body);
- const top=new THREE.Mesh(new THREE.CylinderGeometry(r*.94,r*.94,.012,20),mat(0xd9e2e6,.2));top.position.y=h/2+.006;g.add(top);
- const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.82,.006,8,20),mat(0xaeb8bd,.22));ring.rotation.x=Math.PI/2;ring.position.y=h/2+.014;g.add(ring);return g
+function labelSprite(text,bg){
+ const c=document.createElement('canvas');c.width=300;c.height=95;const x=c.getContext('2d');x.fillStyle=bg;x.beginPath();x.roundRect(4,4,292,87,22);x.fill();x.fillStyle='#fff';x.font='bold 42px Tahoma,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,150,50);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.70,.22,1);return s
 }
-function oneObj(color){
- const g=new THREE.Group();g.add(canMesh(color,false));const lab=makeLabel('1','#d7447d');lab.position.set(0,.24,.05);lab.scale.multiplyScalar(.45);g.add(lab);tag(g,1);return g
+function oneObj(){
+ const g=new THREE.Group();g.add(can(0xd84848,1.05));tag(g,1);return g
 }
-function tenObj(color){
- const g=new THREE.Group();const xs=[-.15,0,.15,-.075,.075],zs=[-.08,-.08,-.08,.08,.08];
- for(let i=0;i<5;i++){const c=canMesh(color,true);c.position.set(xs[i],0,zs[i]);g.add(c)}
- const tray=new THREE.Mesh(new THREE.BoxGeometry(.46,.045,.34),mat(0x2e76bd,.45));tray.position.y=-.12;tray.castShadow=true;g.add(tray);
- const lab=makeLabel('10','#2f77d0');lab.position.set(0,.26,.02);lab.scale.multiplyScalar(.5);g.add(lab);tag(g,10);return g
+function tenObj(){
+ const g=new THREE.Group();const positions=[[-.16,0,-.08],[0,0,-.08],[.16,0,-.08],[-.08,0,.10],[.08,0,.10]];
+ positions.forEach(p=>{const c=can(0x2d76d2,.68);c.position.set(...p);g.add(c)});
+ const band=new THREE.Mesh(new THREE.BoxGeometry(.46,.10,.30),new THREE.MeshStandardMaterial({color:0xc79b5a,roughness:.55}));band.position.y=-.03;g.add(band);
+ const lab=labelSprite('10','#2f79d2');lab.position.set(0,.30,.05);lab.scale.multiplyScalar(.62);g.add(lab);tag(g,10);return g
 }
-function hundredObj(color){
- const g=new THREE.Group();for(let z=-1;z<=1;z++)for(let x=-1;x<=1;x++){const c=canMesh(color,true);c.scale.setScalar(.85);c.position.set(x*.12,0,z*.12);g.add(c)}
- const crate=new THREE.Mesh(new THREE.BoxGeometry(.48,.14,.48),new THREE.MeshStandardMaterial({color:0x21965f,roughness:.5,transparent:true,opacity:.85}));crate.position.y=-.12;crate.castShadow=true;g.add(crate);
- const lab=makeLabel('100','#198457');lab.position.set(0,.29,.02);lab.scale.multiplyScalar(.54);g.add(lab);tag(g,100);return g
+function hundredObj(){
+ const g=new THREE.Group();
+ for(let z=-1;z<=1;z++)for(let x=-2;x<=2;x++){const c=can(0xd9e1e5,.45);c.position.set(x*.10,.06,z*.11);g.add(c)}
+ const box=new THREE.Mesh(new THREE.BoxGeometry(.62,.34,.48),new THREE.MeshStandardMaterial({color:0x178a50,roughness:.48,transparent:true,opacity:.90}));box.position.y=-.13;box.castShadow=true;g.add(box);
+ const lab=labelSprite('100','#188457');lab.position.set(0,.38,.05);lab.scale.multiplyScalar(.70);g.add(lab);tag(g,100);return g
 }
-function tag(o,value){o.userData.value=value;o.userData.start=new THREE.Vector3();o.userData.collected=false;o.traverse(c=>c.userData.dragRoot=o)}
-
-function clearScene(){
- [...itemsByMonth[1],...itemsByMonth[2]].forEach(o=>root.remove(o));itemsByMonth={1:[],2:[]};
- Object.values(dropZones).forEach(z=>root.remove(z.group));dropZones={};
-}
-function createDropZone(x,label,color,value){
- const group=new THREE.Group();const disc=new THREE.Mesh(new THREE.CircleGeometry(.48,48),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.38,side:THREE.DoubleSide}));disc.rotation.x=-Math.PI/2;disc.position.y=-.01;group.add(disc);
- const ring=new THREE.Mesh(new THREE.RingGeometry(.49,.58,48),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0;group.add(ring);
- const lab=makeLabel(label,color);lab.position.set(0,.38,0);group.add(lab);group.position.set(x,-1.20,.1);root.add(group);dropZones[value]={group,x,y:-1.20,value};return group
+function tag(o,value){o.userData.value=value;o.userData.collected=false;o.userData.home=new THREE.Vector3();o.traverse(c=>c.userData.dragRoot=o)}
+function clearObjects(){[...items[1],...items[2]].forEach(o=>root.remove(o));items={1:[],2:[]}}
+function build(){
+ clearObjects();
+ items[1]=[hundredObj(),...Array.from({length:7},()=>tenObj()),...Array.from({length:8},()=>oneObj())];
+ items[2]=[hundredObj(),hundredObj(),...Array.from({length:3},()=>tenObj()),...Array.from({length:6},()=>oneObj())];
+ setMonth(1);
 }
 function arrange(list){
- const pos=[];const cols=4,dx=.68,dy=.58;for(let i=0;i<list.length;i++){const row=Math.floor(i/cols),col=i%cols;pos.push([(col-1.5)*dx,.75-row*dy,.08+(row%2)*.02])}
- list.forEach((o,i)=>{o.position.set(pos[i][0],pos[i][1],pos[i][2]);o.userData.start.copy(o.position);root.add(o)})
-}
-function build(){
- clearScene();
- createDropZone(-1.45,'مئات',0x198457,100);createDropZone(0,'عشرات',0x2f77d0,10);createDropZone(1.45,'آحاد',0xd7447d,1);
- itemsByMonth[1]=[hundredObj(0x55c484),...Array.from({length:7},()=>tenObj(0x4b9ae9)),...Array.from({length:8},()=>oneObj(0xec6a9b))];
- itemsByMonth[2]=[hundredObj(0x55c484),hundredObj(0x55c484),...Array.from({length:3},()=>tenObj(0x4b9ae9)),...Array.from({length:6},()=>oneObj(0xec6a9b))];
- setMonth(1);
+ const pos=[],cols=4,dx=.73,dy=.66;
+ for(let i=0;i<list.length;i++){const row=Math.floor(i/cols),col=i%cols;pos.push([(col-1.5)*dx,1.15-row*dy,.05+(row%2)*.02])}
+ list.forEach((o,i)=>{o.position.set(pos[i][0],pos[i][1],pos[i][2]);o.userData.home.copy(o.position);o.scale.setScalar(o.userData.value===100?.88:o.userData.value===10?.82:.90);if(!o.parent)root.add(o)})
 }
 function setMonth(n){
  currentMonth=n;m1.classList.toggle('active',n===1);m2.classList.toggle('active',n===2);
- itemsByMonth[1].forEach(o=>o.visible=n===1&&!o.userData.collected);itemsByMonth[2].forEach(o=>o.visible=n===2&&!o.userData.collected);
- const active=itemsByMonth[n].filter(o=>!o.userData.collected);arrange(active);
- setMessage(n===1?'الشهر الأول 178: اسحبي العلب والحزم والصندوق إلى الخانات المناسبة.':'الشهر الثاني 236: اسحبي العلب والحزم والصناديق إلى الخانات المناسبة.');
+ items[1].forEach(o=>o.visible=n===1&&!o.userData.collected);items[2].forEach(o=>o.visible=n===2&&!o.userData.collected);
+ const active=items[n].filter(o=>!o.userData.collected);arrange(active);
+ instruction.textContent=n===1?'☝️ الشهر الأول 178: اسحبي القطع إلى الخانات المناسبة':'☝️ الشهر الثاني 236: اسحبي القطع إلى الخانات المناسبة';
 }
 function setPointer(x,y){const r=canvas.getBoundingClientRect();pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1}
-function plane(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
 function findRoot(o){let n=o;while(n){if(n.userData&&n.userData.dragRoot)return n.userData.dragRoot;n=n.parent}return null}
+function dragPlaneForRoot(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
 function down(e){
  e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);
- const candidates=itemsByMonth[currentMonth].filter(o=>!o.userData.collected&&o.visible);const hits=raycaster.intersectObjects(candidates,true);if(!hits.length)return;
- dragging=findRoot(hits[0].object);if(!dragging)return;dragging.scale.multiplyScalar(1.08);dragPlane=plane();const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
+ const candidates=items[currentMonth].filter(o=>o.visible&&!o.userData.collected);const hits=raycaster.intersectObjects(candidates,true);if(!hits.length)return;
+ dragging=findRoot(hits[0].object);if(!dragging)return;dragging.scale.multiplyScalar(1.10);dragPlane=dragPlaneForRoot();const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
 }
 function move(e){
- if(!dragging)return;e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOffset);dragging.position.x=THREE.MathUtils.clamp(w.x,-2.1,2.1);dragging.position.y=THREE.MathUtils.clamp(w.y,-1.4,1.2)
+ if(!dragging)return;e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOffset);dragging.position.x=THREE.MathUtils.clamp(w.x,-2.2,2.2);dragging.position.y=THREE.MathUtils.clamp(w.y,-1.5,1.6);
+ const target=findZoneAt(e.clientX,e.clientY);Object.values(zones).forEach(z=>z.classList.remove('hot'));if(target)zones[target].classList.add('hot');
 }
-function up(){
- if(!dragging)return;const d=dragging;dragging=null;d.scale.divideScalar(1.08);
- let nearest=null,dist=99;Object.values(dropZones).forEach(z=>{const dd=Math.hypot(d.position.x-z.x,d.position.y-z.y);if(dd<dist){dist=dd;nearest=z}});
- if(nearest&&dist<.72){
-   if(+d.userData.value===nearest.value){collect(d,nearest)}
-   else{errors++;score=Math.max(0,score-1);updateHud();setMessage('هذه الخانة غير مناسبة. جرّبي خانة أخرى.',true);snapBack(d)}
+function up(e){
+ Object.values(zones).forEach(z=>z.classList.remove('hot'));if(!dragging)return;const d=dragging;dragging=null;d.scale.divideScalar(1.10);
+ const target=findZoneAt(e.clientX,e.clientY);
+ if(target){
+   if(+d.userData.value===target)collect(d,target);
+   else{errors++;score=Math.max(0,score-1);updateHud();instruction.textContent='❌ هذه الخانة غير مناسبة، حاولي مرة أخرى';snapBack(d)}
  }else snapBack(d)
 }
-function snapBack(o){o.position.copy(o.userData.start)}
-function collect(o,z){
- o.userData.collected=true;counts[z.value]++;score+=2;updateHud();setMessage('ممتاز! واصلي جمع القطع.');animateCollect(o,z,()=>{o.visible=false;checkMonth();updateRegroup()})
+function findZoneAt(x,y){for(const [v,z] of Object.entries(zones)){const r=z.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return +v}return null}
+function snapBack(o){o.position.copy(o.userData.home)}
+function collect(o,value){
+ o.userData.collected=true;counts[value]++;score+=2;history.push({type:'collect',obj:o,value,month:currentMonth});updateHud();updateButtons();
+ animateCollect(o,()=>{o.visible=false;checkMonth();checkFinish()})
 }
-function animateCollect(o,z,done){
- const from=o.position.clone(),to=new THREE.Vector3(z.x,z.y,.12),st=performance.now(),dur=280;
- function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(from,to,e);o.scale.setScalar(1-e*.75);if(k<1)requestAnimationFrame(tick);else{done();o.scale.setScalar(1)}}requestAnimationFrame(tick)
+function animateCollect(o,done){
+ const startP=o.position.clone(),to=new THREE.Vector3(0,-1.35,.1),st=performance.now(),dur=260;
+ function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(startP,to,e);o.scale.multiplyScalar(k<1?.99:.98);if(k<1)requestAnimationFrame(tick);else done()}requestAnimationFrame(tick)
 }
 function checkMonth(){
- const left=itemsByMonth[currentMonth].some(o=>!o.userData.collected);if(!left){doneByMonth[currentMonth]=true;if(!doneByMonth[currentMonth===1?2:1]){const n=currentMonth===1?2:1;setMessage('أحسنتِ! انتهيتِ من هذا الشهر. انتقلي للشهر الآخر.');setTimeout(()=>setMonth(n),550)}else{setMessage('جمعتِ كل العلب! الآن أعيدي التجميع حتى يصبح الناتج في أبسط صورة.');updateRegroup();checkFinish()}}
+ const remaining=items[currentMonth].some(o=>!o.userData.collected);
+ if(!remaining){done[currentMonth]=true;const other=currentMonth===1?2:1;if(!done[other]){instruction.textContent='✅ أنهيتِ هذا الشهر، انتقلي للشهر الآخر';setTimeout(()=>setMonth(other),500)}else instruction.textContent='✅ جُمعت كل القطع، الآن نفّذي إعادة التجميع'}
 }
-function updateRegroup(){regroupOnes.disabled=counts[1]<10;regroupTens.disabled=counts[10]<10;regroupOnes.classList.toggle('ready',counts[1]>=10);regroupTens.classList.toggle('ready',counts[10]>=10)}
-function regroup1(){if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;updateHud();updateRegroup();setMessage('رائع! 10 آحاد أصبحت عشرة واحدة.');checkFinish()}
-function regroup10(){if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;updateHud();updateRegroup();setMessage('ممتاز! 10 عشرات أصبحت مئة واحدة.');checkFinish()}
-function checkFinish(){if(doneByMonth[1]&&doneByMonth[2]&&counts[100]===4&&counts[10]===1&&counts[1]===4){clearInterval(timer);setTimeout(()=>{hud.style.display='none';finish.style.display='flex';document.getElementById('finalTime').textContent='⏱ '+elapsed+'ث';document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';document.getElementById('finalScore').textContent='⭐ '+score},400)}}
-function updateHud(){scoreEl.textContent='⭐ '+score}
+function updateHud(){scoreEl.textContent='⭐ '+score+' نقاط';countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100]}
+function updateButtons(){regroup1.classList.toggle('ready',counts[1]>=10);regroup10.classList.toggle('ready',counts[10]>=10)}
+function regroupOnes(){
+ if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;history.push({type:'reg1'});updateHud();updateButtons();instruction.textContent='✨ 10 آحاد تحولت إلى عشرة واحدة';checkFinish()
+}
+function regroupTens(){
+ if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;history.push({type:'reg10'});updateHud();updateButtons();instruction.textContent='✨ 10 عشرات تحولت إلى مئة واحدة';checkFinish()
+}
+function undo(){
+ const a=history.pop();if(!a)return;
+ if(a.type==='collect'){a.obj.userData.collected=false;counts[a.value]--;score=Math.max(0,score-2);setMonth(currentMonth)}
+ if(a.type==='reg1'){counts[1]+=10;counts[10]--;score=Math.max(0,score-5)}
+ if(a.type==='reg10'){counts[10]+=10;counts[100]--;score=Math.max(0,score-5)}
+ updateHud();updateButtons();instruction.textContent='↶ تم التراجع عن آخر حركة'
+}
+function checkFinish(){
+ const all=done[1]&&done[2];if(all&&counts[100]===4&&counts[10]===1&&counts[1]===4){clearInterval(timer);setTimeout(()=>endGame(true),350)}
+}
+function endGame(success){
+ hud.style.display='none';finish.style.display='flex';
+ document.getElementById('finishTitle').textContent=success?'أحسنتِ!':'انتهى الوقت';
+ document.getElementById('finishText').textContent=success?'جمعتِ العلب وأعدتِ التجميع بشكل صحيح.':'يمكنكِ إعادة المحاولة لتحسين نتيجتك.';
+ document.getElementById('finalResult').textContent=success?'414 علبة':'حاولي مرة أخرى';
+ const used=150-timeLeft,mm=String(Math.floor(used/60)).padStart(2,'0'),ss=String(used%60).padStart(2,'0');
+ document.getElementById('finalTime').textContent='⏱ '+mm+':'+ss;document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';document.getElementById('finalScore').textContent='⭐ '+score
+}
+function startTimer(){
+ clearInterval(timer);timeLeft=150;renderTime();timer=setInterval(()=>{timeLeft--;renderTime();if(timeLeft<=0){clearInterval(timer);endGame(false)}},1000)
+}
+function renderTime(){const m=String(Math.floor(timeLeft/60)).padStart(2,'0'),s=String(timeLeft%60).padStart(2,'0');timerEl.textContent='⏱ '+m+':'+s}
 function reset(){
- counts={1:0,10:0,100:0};score=0;errors=0;elapsed=0;doneByMonth={1:false,2:false};updateHud();clearInterval(timer);timeEl.textContent='⏱ 0ث';timer=setInterval(()=>{elapsed++;timeEl.textContent='⏱ '+elapsed+'ث'},1000);build();updateRegroup()
+ counts={1:0,10:0,100:0};done={1:false,2:false};score=0;errors=0;history=[];updateHud();updateButtons();build();startTimer()
 }
-m1.onclick=()=>setMonth(1);m2.onclick=()=>setMonth(2);regroupOnes.onclick=regroup1;regroupTens.onclick=regroup10;document.getElementById('resetView').onclick=()=>{positionRoot();setMonth(currentMonth)};
+m1.onclick=()=>setMonth(1);m2.onclick=()=>setMonth(2);regroup1.onclick=regroupOnes;regroup10.onclick=regroupTens;document.getElementById('undo').onclick=undo;document.getElementById('help').onclick=()=>helpBox.style.display='flex';document.getElementById('closeHelp').onclick=()=>helpBox.style.display='none';
 document.getElementById('startBtn').onclick=async()=>{hideErr();try{await openCamera();if(!renderer)initThree();start.style.display='none';finish.style.display='none';hud.style.display='block';reset()}catch(e){showErr('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}};
 document.getElementById('again').onclick=()=>{finish.style.display='none';hud.style.display='block';reset()};
 function animate(){requestAnimationFrame(animate);renderer&&renderer.render(scene,camera)}
