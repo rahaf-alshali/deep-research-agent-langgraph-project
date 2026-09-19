@@ -22,10 +22,10 @@ button{font:inherit}
 .top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:86px 1fr 86px;gap:8px;align-items:center}
 .topchip{background:rgba(255,255,255,.94);color:#17375e;border:1px solid rgba(255,255,255,.7);padding:9px 7px;border-radius:18px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:14px}
 .title{font-size:18px;color:#166944}
-.months{position:absolute;top:max(60px,calc(env(safe-area-inset-top) + 52px));left:50%;transform:translateX(-50%);width:min(88vw,520px);display:grid;grid-template-columns:1fr 1fr;gap:8px;pointer-events:auto}
+.months{position:absolute;top:max(60px,calc(env(safe-area-inset-top) + 52px));left:50%;transform:translateX(-50%);width:min(92vw,560px);display:grid;grid-template-columns:1fr 1fr;gap:8px;pointer-events:none}
 .month{border:0;border-radius:18px;padding:10px 8px;background:rgba(255,255,255,.94);box-shadow:0 7px 20px rgba(0,0,0,.18);font-weight:900;color:#17375e}
 .month strong{display:block;font-size:14px}.month span{display:block;font-size:25px;margin-top:2px}
-.month.active.one{outline:3px solid #77b7ff;background:#f0f7ff}.month.active.two{outline:3px solid #60d487;background:#effff4;color:#17683f}
+.month.one{outline:3px solid #77b7ff;background:#f0f7ff}.month.two{outline:3px solid #60d487;background:#effff4;color:#17683f}
 #instruction{position:absolute;left:50%;bottom:calc(225px + max(10px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(88vw,520px);background:rgba(255,255,255,.94);color:#17375e;border-radius:999px;padding:10px 16px;text-align:center;font-weight:900;box-shadow:0 7px 22px rgba(0,0,0,.2);font-size:14px}
 .dropWrap{position:absolute;left:8px;right:8px;bottom:calc(62px + max(8px,env(safe-area-inset-bottom)));display:grid;grid-template-columns:repeat(3,1fr);gap:7px;pointer-events:auto}
 .drop{border:2px solid rgba(255,255,255,.7);border-radius:18px;min-height:145px;padding:8px 6px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#17375e;position:relative}
@@ -77,11 +77,11 @@ button{font:inherit}
  </div>
 
  <div class="months">
-  <button id="m1" class="month one active"><strong>الشهر الأول</strong><span>178</span></button>
-  <button id="m2" class="month two"><strong>الشهر الثاني</strong><span>236</span></button>
+  <div id="m1" class="month one"><strong>الشهر الأول</strong><span>178</span></div>
+  <div id="m2" class="month two"><strong>الشهر الثاني</strong><span>236</span></div>
  </div>
 
- <div id="instruction">☝️ اسحبي العلب إلى الخانة المناسبة</div>
+ <div id="instruction">☝️ المجموعتان ظاهرتان معًا: اسحبي أي قطعة إلى الخانة المناسبة</div>
 
  <div class="dropWrap">
   <div id="zone100" class="drop h" data-value="100"><div class="icon">🟩</div><div class="label">المئات</div><div class="val">100</div><div id="c100" class="count">0</div><div class="target"></div></div>
@@ -114,7 +114,7 @@ button{font:inherit}
  <div class="panel">
   <h1>طريقة اللعب</h1>
   <div class="helpText">
-   1. اختاري الشهر الأول أو الثاني.<br>
+   1. ستظهر قطع الشهر الأول 178 والشهر الثاني 236 معًا أمامكِ.<br>
    2. اسحبي الصندوق الأخضر إلى <b>المئات</b>.<br>
    3. اسحبي الحزمة الزرقاء إلى <b>العشرات</b>.<br>
    4. اسحبي العلبة الحمراء إلى <b>الآحاد</b>.<br>
@@ -133,7 +133,7 @@ const countEls={1:document.getElementById('c1'),10:document.getElementById('c10'
 const zones={1:document.getElementById('zone1'),10:document.getElementById('zone10'),100:document.getElementById('zone100')};
 const m1=document.getElementById('m1'),m2=document.getElementById('m2'),regroup1=document.getElementById('regroup1'),regroup10=document.getElementById('regroup10');
 
-let renderer,scene,camera,root,currentMonth=1,dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
+let renderer,scene,camera,root,dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
 let items={1:[],2:[]},counts={1:0,10:0,100:0},done={1:false,2:false},score=0,errors=0,timeLeft=150,timer=null,history=[];
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 
@@ -187,25 +187,31 @@ function build(){
  clearObjects();
  items[1]=[hundredObj(),...Array.from({length:7},()=>tenObj()),...Array.from({length:8},()=>oneObj())];
  items[2]=[hundredObj(),hundredObj(),...Array.from({length:3},()=>tenObj()),...Array.from({length:6},()=>oneObj())];
- setMonth(1);
+ arrangeBoth();
+ instruction.textContent='☝️ الشهر الأول 178 والشهر الثاني 236 ظاهران معًا — اسحبي أي قطعة للخانة المناسبة';
 }
-function arrange(list){
- const pos=[],cols=4,dx=.73,dy=.66;
- for(let i=0;i<list.length;i++){const row=Math.floor(i/cols),col=i%cols;pos.push([(col-1.5)*dx,1.15-row*dy,.05+(row%2)*.02])}
- list.forEach((o,i)=>{o.position.set(pos[i][0],pos[i][1],pos[i][2]);o.userData.home.copy(o.position);o.scale.setScalar(o.userData.value===100?.88:o.userData.value===10?.82:.90);if(!o.parent)root.add(o)})
+function placeItem(o,x,y,s){
+ o.visible=!o.userData.collected;o.position.set(x,y,.06);o.userData.home.copy(o.position);o.scale.setScalar(s);if(!o.parent)root.add(o)
 }
-function setMonth(n){
- currentMonth=n;m1.classList.toggle('active',n===1);m2.classList.toggle('active',n===2);
- items[1].forEach(o=>o.visible=n===1&&!o.userData.collected);items[2].forEach(o=>o.visible=n===2&&!o.userData.collected);
- const active=items[n].filter(o=>!o.userData.collected);arrange(active);
- instruction.textContent=n===1?'☝️ الشهر الأول 178: اسحبي القطع إلى الخانات المناسبة':'☝️ الشهر الثاني 236: اسحبي القطع إلى الخانات المناسبة';
+function arrangeBoth(){
+ const a=items[1].filter(o=>!o.userData.collected),b=items[2].filter(o=>!o.userData.collected);
+ // الشهر الأول 178 في الجهة اليسرى
+ let a100=a.filter(o=>o.userData.value===100),a10=a.filter(o=>o.userData.value===10),a1=a.filter(o=>o.userData.value===1);
+ a100.forEach((o,i)=>placeItem(o,-1.55+i*.55,1.05,.58));
+ a10.forEach((o,i)=>placeItem(o,-1.78+(i%4)*.42,.52-Math.floor(i/4)*.48,.52));
+ a1.forEach((o,i)=>placeItem(o,-1.78+(i%4)*.36,-.48-Math.floor(i/4)*.38,.62));
+ // الشهر الثاني 236 في الجهة اليمنى
+ let b100=b.filter(o=>o.userData.value===100),b10=b.filter(o=>o.userData.value===10),b1=b.filter(o=>o.userData.value===1);
+ b100.forEach((o,i)=>placeItem(o,.98+i*.68,1.05,.58));
+ b10.forEach((o,i)=>placeItem(o,1.02+i*.48,.40,.52));
+ b1.forEach((o,i)=>placeItem(o,.98+(i%3)*.40,-.26-Math.floor(i/3)*.38,.62));
 }
 function setPointer(x,y){const r=canvas.getBoundingClientRect();pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1}
 function findRoot(o){let n=o;while(n){if(n.userData&&n.userData.dragRoot)return n.userData.dragRoot;n=n.parent}return null}
 function dragPlaneForRoot(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
 function down(e){
  e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);
- const candidates=items[currentMonth].filter(o=>o.visible&&!o.userData.collected);const hits=raycaster.intersectObjects(candidates,true);if(!hits.length)return;
+ const candidates=[...items[1],...items[2]].filter(o=>o.visible&&!o.userData.collected);const hits=raycaster.intersectObjects(candidates,true);if(!hits.length)return;
  dragging=findRoot(hits[0].object);if(!dragging)return;dragging.scale.multiplyScalar(1.10);dragPlane=dragPlaneForRoot();const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
 }
 function move(e){
@@ -223,16 +229,17 @@ function up(e){
 function findZoneAt(x,y){for(const [v,z] of Object.entries(zones)){const r=z.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return +v}return null}
 function snapBack(o){o.position.copy(o.userData.home)}
 function collect(o,value){
- o.userData.collected=true;counts[value]++;score+=2;history.push({type:'collect',obj:o,value,month:currentMonth});updateHud();updateButtons();
- animateCollect(o,()=>{o.visible=false;checkMonth();checkFinish()})
+ o.userData.collected=true;counts[value]++;score+=2;history.push({type:'collect',obj:o,value});updateHud();updateButtons();
+ animateCollect(o,()=>{o.visible=false;checkAll();arrangeBoth();checkFinish()})
 }
 function animateCollect(o,done){
  const startP=o.position.clone(),to=new THREE.Vector3(0,-1.35,.1),st=performance.now(),dur=260;
  function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(startP,to,e);o.scale.multiplyScalar(k<1?.99:.98);if(k<1)requestAnimationFrame(tick);else done()}requestAnimationFrame(tick)
 }
-function checkMonth(){
- const remaining=items[currentMonth].some(o=>!o.userData.collected);
- if(!remaining){done[currentMonth]=true;const other=currentMonth===1?2:1;if(!done[other]){instruction.textContent='✅ أنهيتِ هذا الشهر، انتقلي للشهر الآخر';setTimeout(()=>setMonth(other),500)}else instruction.textContent='✅ جُمعت كل القطع، الآن نفّذي إعادة التجميع'}
+function checkAll(){
+ done[1]=!items[1].some(o=>!o.userData.collected);
+ done[2]=!items[2].some(o=>!o.userData.collected);
+ if(done[1]&&done[2]) instruction.textContent='✅ جُمعت قطع الشهرين كلها — الآن نفّذي إعادة التجميع';
 }
 function updateHud(){scoreEl.textContent='⭐ '+score+' نقاط';countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100]}
 function updateButtons(){regroup1.classList.toggle('ready',counts[1]>=10);regroup10.classList.toggle('ready',counts[10]>=10)}
@@ -244,7 +251,7 @@ function regroupTens(){
 }
 function undo(){
  const a=history.pop();if(!a)return;
- if(a.type==='collect'){a.obj.userData.collected=false;counts[a.value]--;score=Math.max(0,score-2);setMonth(currentMonth)}
+ if(a.type==='collect'){a.obj.userData.collected=false;counts[a.value]--;score=Math.max(0,score-2);arrangeBoth();checkAll()}
  if(a.type==='reg1'){counts[1]+=10;counts[10]--;score=Math.max(0,score-5)}
  if(a.type==='reg10'){counts[10]+=10;counts[100]--;score=Math.max(0,score-5)}
  updateHud();updateButtons();instruction.textContent='↶ تم التراجع عن آخر حركة'
@@ -267,7 +274,7 @@ function renderTime(){const m=String(Math.floor(timeLeft/60)).padStart(2,'0'),s=
 function reset(){
  counts={1:0,10:0,100:0};done={1:false,2:false};score=0;errors=0;history=[];updateHud();updateButtons();build();startTimer()
 }
-m1.onclick=()=>setMonth(1);m2.onclick=()=>setMonth(2);regroup1.onclick=regroupOnes;regroup10.onclick=regroupTens;document.getElementById('undo').onclick=undo;document.getElementById('help').onclick=()=>helpBox.style.display='flex';document.getElementById('closeHelp').onclick=()=>helpBox.style.display='none';
+regroup1.onclick=regroupOnes;regroup10.onclick=regroupTens;document.getElementById('undo').onclick=undo;document.getElementById('help').onclick=()=>helpBox.style.display='flex';document.getElementById('closeHelp').onclick=()=>helpBox.style.display='none';
 document.getElementById('startBtn').onclick=async()=>{hideErr();try{await openCamera();if(!renderer)initThree();start.style.display='none';finish.style.display='none';hud.style.display='block';reset()}catch(e){showErr('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}};
 document.getElementById('again').onclick=()=>{finish.style.display='none';hud.style.display='block';reset()};
 function animate(){requestAnimationFrame(animate);renderer&&renderer.render(scene,camera)}
