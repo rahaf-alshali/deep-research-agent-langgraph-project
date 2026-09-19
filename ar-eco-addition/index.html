@@ -3,226 +3,214 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>تحدي أصدقاء البيئة AR</title>
+<title>أصدقاء البيئة AR</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
-:root{--green:#1f9d67;--pink:#df4b87;--blue:#2f77d0;--navy:#17385f;--glass:rgba(255,255,255,.92)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Tahoma,Arial,sans-serif;background:#07130e}
-button{font:inherit}
-#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#07130e;z-index:0}
-#shade{position:fixed;inset:0;background:linear-gradient(rgba(0,35,22,.17),rgba(0,25,18,.34));z-index:1;pointer-events:none}
-#start,#finish{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 20%,rgba(213,247,231,.92),rgba(24,91,62,.93) 52%,rgba(5,28,20,.98) 100%)}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;touch-action:none}
+#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0}
+#three{position:fixed;inset:0;width:100%;height:100%;z-index:1;touch-action:none}
+#start,#finish{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 15%,rgba(214,247,231,.96),rgba(31,103,72,.94) 52%,rgba(5,28,20,.98) 100%)}
 .card{width:min(94vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 25px 75px rgba(0,0,0,.35);color:#183628}
-.card h1{margin:0 0 8px;font-size:28px;color:#17734d}.card p{margin:8px 0;line-height:1.75;color:#4c5c53;font-weight:700}
+.card h1{margin:0 0 8px;font-size:28px;color:#17734d}.card p{margin:8px 0;line-height:1.7;color:#4c5c53;font-weight:700}
 .problem{direction:ltr;font-size:42px;font-weight:900;margin:15px 0;color:#215fc1}.problem span{color:#d7447d}
 .primary{width:100%;border:0;border-radius:17px;padding:15px 16px;background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff;font-size:19px;font-weight:900;box-shadow:0 8px 20px rgba(21,152,95,.25)}
-#game{position:fixed;inset:0;z-index:10;display:none;color:#fff}
-.topbar{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:78px 1fr 78px;gap:7px;align-items:center}
-.topchip{background:rgba(8,40,28,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(9px);padding:9px 8px;border-radius:15px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:14px}
-.headtitle{font-size:16px}
-#content{position:absolute;top:max(62px,calc(env(safe-area-inset-top) + 54px));left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;min-height:0}
-.challenge{background:var(--glass);color:#183628;border-radius:18px;padding:9px 12px;text-align:center;box-shadow:0 8px 25px rgba(0,0,0,.18)}
-.challenge .eq{direction:ltr;font-size:27px;font-weight:900;color:#245db8}.challenge .txt{font-size:12px;font-weight:800;color:#51665b;margin-top:2px}
-.months{display:grid;grid-template-columns:1fr 1fr;gap:7px;min-height:0}
-.month{background:rgba(255,255,255,.91);border-radius:18px;padding:8px;color:#183628;box-shadow:0 7px 22px rgba(0,0,0,.16);min-height:0}
-.month h3{margin:0 0 4px;text-align:center;font-size:15px}.month.one h3{color:#2868bb}.month.two h3{color:#198457}
-.month .num{text-align:center;font-size:22px;font-weight:900;margin-bottom:5px}
-.items{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-content:flex-start}
-.item{position:relative;border:0;background:transparent;padding:0;cursor:pointer;transition:.18s transform,.18s opacity;touch-action:manipulation}
-.item:active{transform:scale(.92)}.item.selected{filter:drop-shadow(0 0 8px #ffd95a);transform:scale(1.12)}
-.item.collected{opacity:0;transform:scale(.2);pointer-events:none}
-.can{width:19px;height:34px;border-radius:5px 5px 7px 7px;background:linear-gradient(90deg,#ef6b9d,#d93f78 55%,#f27ba7);border:1px solid rgba(120,25,70,.25);box-shadow:inset 0 4px 0 rgba(255,255,255,.35)}
-.can:before{content:"";position:absolute;left:3px;right:3px;top:2px;height:3px;border-radius:50%;background:#ffd7e5}
-.pack{width:30px;height:38px;border-radius:7px;background:linear-gradient(135deg,#4ba6ef,#236fc1);display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,12px);gap:2px;place-content:center;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)}
-.pack i{display:block;border-radius:2px;background:#9cd2ff;border:1px solid rgba(255,255,255,.45)}
-.crate{width:42px;height:38px;border-radius:7px;background:linear-gradient(135deg,#29aa68,#157748);box-shadow:inset 0 -5px 0 rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px}
-.badge{position:absolute;right:-4px;top:-5px;min-width:18px;height:18px;border-radius:10px;background:#fff;color:#17385f;border:1px solid #d6e3da;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.collectArea{background:rgba(255,255,255,.91);border-radius:20px;padding:8px;color:#183628;box-shadow:0 7px 22px rgba(0,0,0,.16)}
-.collectTitle{text-align:center;font-size:14px;font-weight:900;margin-bottom:7px}
-.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.bin{border:2px dashed rgba(28,91,62,.24);border-radius:14px;background:#f8fbf9;padding:6px 4px;text-align:center;min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#183628;cursor:pointer}
-.bin:active{transform:scale(.98)}.bin.wrong{animation:shake .25s}.bin.good{animation:pop .3s}
-.binIcon{font-size:22px}.binLabel{font-size:11px;font-weight:900}.binCount{font-size:21px;font-weight:900}
-.bin.ones .binCount{color:#d7447d}.bin.tens .binCount{color:#2c78c8}.bin.hundreds .binCount{color:#178457}
-.regroupRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
-.regroup{border:0;border-radius:12px;padding:9px 7px;font-weight:900;font-size:12px;color:white;background:#8e98a3;opacity:.45;pointer-events:none}
-.regroup.ready{background:linear-gradient(135deg,#f0a827,#e06a3b);opacity:1;pointer-events:auto;box-shadow:0 5px 15px rgba(224,106,59,.22)}
-#feedback{min-height:34px;background:rgba(8,40,28,.74);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);border-radius:14px;padding:8px 10px;text-align:center;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
-#feedback.good{background:rgba(21,130,83,.82)}#feedback.bad{background:rgba(170,53,79,.82)}
-.help{font-weight:800;font-size:11px;color:#596b61;text-align:center;margin-top:5px}
+#hud{position:fixed;inset:0;z-index:10;display:none;pointer-events:none;color:#fff}
+.top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:70px 1fr 70px;gap:7px;align-items:center}
+.chip{background:rgba(8,40,28,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(9px);padding:9px 7px;border-radius:15px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:13px}
+.title{font-size:15px}
+.monthTabs{position:absolute;top:max(55px,calc(env(safe-area-inset-top) + 47px));left:50%;transform:translateX(-50%);display:flex;gap:7px;pointer-events:auto}
+.monthBtn{border:0;border-radius:999px;padding:8px 13px;font-weight:900;background:rgba(255,255,255,.90);color:#264d39;box-shadow:0 5px 15px rgba(0,0,0,.17)}
+.monthBtn.active{background:#188457;color:#fff}
+#message{position:absolute;top:max(98px,calc(env(safe-area-inset-top) + 90px));left:50%;transform:translateX(-50%);width:min(88vw,520px);background:rgba(255,255,255,.93);color:#183628;border-radius:14px;padding:8px 12px;text-align:center;font-weight:900;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.bottom{position:absolute;bottom:max(10px,env(safe-area-inset-bottom));left:8px;right:8px;display:flex;justify-content:center;gap:7px;pointer-events:auto;flex-wrap:wrap}
+.action{border:0;border-radius:999px;padding:9px 12px;font-weight:900;color:#fff;background:rgba(8,40,28,.78);border:1px solid rgba(255,255,255,.22)}
+.action.ready{background:linear-gradient(135deg,#efad2e,#df6b3e)}
+.action:disabled{opacity:.45}
+#legend{position:absolute;right:8px;bottom:max(58px,calc(env(safe-area-inset-bottom) + 48px));background:rgba(255,255,255,.92);color:#183628;border-radius:14px;padding:7px 9px;font-weight:900;font-size:11px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.18)}
 #finish{display:none}.finishScore{font-size:45px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#eff6f1;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
-@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}@keyframes pop{50%{transform:scale(1.06)}}
-@media (min-width:700px){
-  #content{left:5vw;right:5vw;top:max(72px,calc(env(safe-area-inset-top) + 60px));gap:12px}
-  .challenge{padding:12px}.challenge .eq{font-size:34px}.challenge .txt{font-size:15px}
-  .month{padding:12px}.month h3{font-size:19px}.month .num{font-size:28px}.items{gap:8px}
-  .can{width:25px;height:44px}.pack{width:40px;height:48px;grid-template-columns:repeat(2,9px);grid-template-rows:repeat(2,15px)}.crate{width:55px;height:49px;font-size:24px}
-  .collectArea{padding:12px}.collectTitle{font-size:17px}.bin{min-height:105px}.binIcon{font-size:30px}.binLabel{font-size:14px}.binCount{font-size:28px}.regroup{font-size:15px;padding:11px}.help{font-size:13px}
-}
-@media (max-height:690px){
-  .challenge{padding:6px 10px}.challenge .eq{font-size:23px}.challenge .txt{display:none}
-  .month{padding:6px}.month h3{font-size:13px}.month .num{font-size:19px}.items{gap:4px}
-  .can{width:17px;height:29px}.pack{width:27px;height:32px}.crate{width:38px;height:32px}
-  .bin{min-height:66px}.binIcon{font-size:18px}.binCount{font-size:18px}.regroup{padding:7px;font-size:11px}
+#err{position:fixed;z-index:40;left:14px;right:14px;bottom:18px;display:none;background:#fff3cd;color:#594900;padding:13px;border-radius:14px;text-align:center;font-weight:800}
+@media(min-width:700px){
+ .top{left:5vw;right:5vw}.chip{font-size:15px;padding:10px}.title{font-size:18px}
+ .monthBtn{font-size:16px;padding:9px 16px}#message{font-size:15px}
+ #legend{font-size:13px;right:5vw}.action{font-size:15px;padding:10px 15px}
 }
 </style>
 </head>
 <body>
 <video id="camera" autoplay muted playsinline></video>
-<div id="shade"></div>
+<canvas id="three"></canvas>
 
 <div id="start">
   <div class="card">
-    <h1>♻️ تحدي أصدقاء البيئة</h1>
-    <p>اجمعي علب الشهرين، وضعي كل نوع في مكانه الصحيح، ثم أعيدي التجميع لتكتشفي المجموع.</p>
+    <h1>♻️ أصدقاء البيئة</h1>
+    <p>ستظهر العلب أمامكِ فوق البيئة الحقيقية. اسحبي كل مجموعة إلى خانة القيمة المنزلية الصحيحة، ثم أعيدي التجميع.</p>
     <div class="problem">178 + <span>236</span></div>
-    <p style="font-size:13px">كل صندوق أخضر = 100، كل حزمة زرقاء = 10، وكل علبة وردية = 1.</p>
-    <button id="startBtn" class="primary">ابدئي النشاط بالواقع المعزز</button>
+    <p style="font-size:13px">العلبة = 1، حزمة العلب = 10، صندوق العلب = 100.</p>
+    <button id="startBtn" class="primary">ابدئي الواقع المعزز</button>
   </div>
 </div>
 
-<div id="game">
-  <div class="topbar">
-    <div class="topchip" id="timeChip">⏱ 0ث</div>
-    <div class="topchip headtitle">أصدقاء البيئة ♻️</div>
-    <div class="topchip" id="scoreChip">⭐ 0</div>
+<div id="hud">
+  <div class="top">
+    <div id="time" class="chip">⏱ 0ث</div>
+    <div class="chip title">تحدي أصدقاء البيئة</div>
+    <div id="score" class="chip">⭐ 0</div>
   </div>
-
-  <div id="content">
-    <div class="challenge">
-      <div class="eq">178 + 236 = ؟</div>
-      <div class="txt">اختاري قطعة ثم اضغطي سلة القيمة المنزلية المناسبة.</div>
-    </div>
-
-    <div class="months">
-      <section class="month one">
-        <h3>الشهر الأول</h3>
-        <div class="num">178</div>
-        <div id="month1" class="items"></div>
-      </section>
-      <section class="month two">
-        <h3>الشهر الثاني</h3>
-        <div class="num">236</div>
-        <div id="month2" class="items"></div>
-      </section>
-    </div>
-
-    <section class="collectArea">
-      <div class="collectTitle">منطقة التجميع</div>
-      <div class="bins">
-        <button class="bin hundreds" data-target="100"><div class="binIcon">🟩</div><div class="binLabel">المئات</div><div class="binCount" id="count100">0</div></button>
-        <button class="bin tens" data-target="10"><div class="binIcon">🟦</div><div class="binLabel">العشرات</div><div class="binCount" id="count10">0</div></button>
-        <button class="bin ones" data-target="1"><div class="binIcon">🥫</div><div class="binLabel">الآحاد</div><div class="binCount" id="count1">0</div></button>
-      </div>
-      <div class="regroupRow">
-        <button id="regroupTens" class="regroup">10 عشرات ← مئة</button>
-        <button id="regroupOnes" class="regroup">10 آحاد ← عشرة</button>
-      </div>
-      <div class="help">يمكنكِ إعادة التجميع متى وصل العدد إلى 10.</div>
-    </section>
-
-    <div id="feedback">اختاري أول قطعة من الشهر الأول أو الثاني.</div>
+  <div class="monthTabs">
+    <button id="m1" class="monthBtn active">الشهر الأول 178</button>
+    <button id="m2" class="monthBtn">الشهر الثاني 236</button>
+  </div>
+  <div id="message">اسحبي العلب أمامكِ إلى الدوائر المناسبة: مئات، عشرات، آحاد.</div>
+  <div id="legend">🟩 100 = مئة<br>🟦 10 = عشرة<br>🥫 1 = آحاد</div>
+  <div class="bottom">
+    <button id="regroupTens" class="action" disabled>10 عشرات ← مئة</button>
+    <button id="regroupOnes" class="action" disabled>10 آحاد ← عشرة</button>
+    <button id="resetView" class="action">إعادة تمركز</button>
   </div>
 </div>
 
 <div id="finish">
   <div class="card">
-    <div style="font-size:44px">🌍♻️</div>
+    <div style="font-size:44px">🌍✨</div>
     <h1>أحسنتِ يا صديقة البيئة!</h1>
-    <p>جمعتِ علب الشهرين وأعدتِ التجميع بشكل صحيح.</p>
+    <p>بعد الجمع وإعادة التجميع أصبح لدينا:</p>
     <div class="finishScore">414 علبة</div>
     <div class="problem" style="font-size:30px">178 + 236 = <span style="color:#148254">414</span></div>
     <div class="stats"><span id="finalTime">⏱ 0ث</span><span id="finalErrors">✖ 0 أخطاء</span><span id="finalScore">⭐ 0</span></div>
-    <button id="againBtn" class="primary">إعادة التحدي</button>
+    <button id="again" class="primary">إعادة النشاط</button>
   </div>
 </div>
+<div id="err"></div>
 
 <script>
 (function(){
-const video=document.getElementById('camera'),start=document.getElementById('start'),game=document.getElementById('game'),finish=document.getElementById('finish');
-const feedback=document.getElementById('feedback'),scoreChip=document.getElementById('scoreChip'),timeChip=document.getElementById('timeChip');
-const countEls={1:document.getElementById('count1'),10:document.getElementById('count10'),100:document.getElementById('count100')};
-const regroupOnes=document.getElementById('regroupOnes'),regroupTens=document.getElementById('regroupTens');
-let selected=null,counts={1:0,10:0,100:0},score=0,errors=0,elapsed=0,timer=null;
+const video=document.getElementById('camera'),canvas=document.getElementById('three'),start=document.getElementById('start'),hud=document.getElementById('hud'),finish=document.getElementById('finish'),msg=document.getElementById('message'),scoreEl=document.getElementById('score'),timeEl=document.getElementById('time'),err=document.getElementById('err');
+const m1=document.getElementById('m1'),m2=document.getElementById('m2'),regroupOnes=document.getElementById('regroupOnes'),regroupTens=document.getElementById('regroupTens');
 
+let renderer,scene,camera,root,dropZones={},currentMonth=1,selected=null,dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
+let itemsByMonth={1:[],2:[]},doneByMonth={1:false,2:false},counts={1:0,10:0,100:0},score=0,errors=0,elapsed=0,timer=null;
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+
+function setMessage(t,bad=false){msg.textContent=t;msg.style.background=bad?'rgba(255,230,235,.95)':'rgba(255,255,255,.93)';msg.style.color=bad?'#a9365d':'#183628'}
+function showErr(t){err.textContent=t;err.style.display='block'} function hideErr(){err.style.display='none'}
 async function openCamera(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error('camera');
-  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
-  video.srcObject=stream; await video.play();
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('camera');
+ const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
+ video.srcObject=s;await video.play();
 }
-function makeItem(value,label){
-  const b=document.createElement('button'); b.className='item'; b.dataset.value=String(value); b.setAttribute('aria-label',label);
-  if(value===1){b.innerHTML='<div class="can"></div><span class="badge">1</span>'}
-  if(value===10){b.innerHTML='<div class="pack"><i></i><i></i><i></i><i></i></div><span class="badge">10</span>'}
-  if(value===100){b.innerHTML='<div class="crate">♻</div><span class="badge">100</span>'}
-  b.onclick=()=>selectItem(b); return b;
+
+function initThree(){
+ renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,100);camera.position.set(0,0,0);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x4a4d4b,1.7));const dl=new THREE.DirectionalLight(0xfff1da,2.3);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
+ root=new THREE.Group();scene.add(root);positionRoot();
+ window.addEventListener('resize',resize);
+ canvas.addEventListener('pointerdown',down,{passive:false});canvas.addEventListener('pointermove',move,{passive:false});canvas.addEventListener('pointerup',up,{passive:false});canvas.addEventListener('pointercancel',up,{passive:false});
+ animate();
 }
-function fillMonth(el,h,t,o){
-  el.innerHTML='';
-  for(let i=0;i<h;i++)el.appendChild(makeItem(100,'مئة'));
-  for(let i=0;i<t;i++)el.appendChild(makeItem(10,'عشرة'));
-  for(let i=0;i<o;i++)el.appendChild(makeItem(1,'آحاد'));
+function positionRoot(){
+ const narrow=innerWidth<600;root.position.set(0,narrow?-0.55:-0.25,narrow?-5.3:-5.0);root.rotation.x=-0.28;root.scale.setScalar(narrow?.78:1.0);
 }
-function selectItem(el){
-  if(el.classList.contains('collected'))return;
-  if(selected)selected.classList.remove('selected');
-  selected=el; el.classList.add('selected');
-  const names={1:'علبة آحاد',10:'حزمة عشرات',100:'صندوق مئات'};
-  setFeedback('اخترتِ '+names[+el.dataset.value]+'، الآن اضغطي السلة المناسبة.','');
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false);positionRoot()}
+function mat(c,rough=.36){return new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:.04})}
+
+function makeLabel(text,bg){
+ const c=document.createElement('canvas');c.width=360;c.height=110;const x=c.getContext('2d');
+ x.fillStyle=bg;x.beginPath();x.roundRect(4,4,352,102,24);x.fill();x.fillStyle='#fff';x.font='bold 48px Tahoma,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,180,58);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.95,.29,1);return s
 }
-function setFeedback(t,type){feedback.textContent=t;feedback.className=type||''}
-function placeInto(target,bin){
-  if(!selected){setFeedback('اختاري قطعة أولًا ثم اختاري السلة.','bad');return}
-  const value=+selected.dataset.value;
-  if(value!==target){
-    errors++;score=Math.max(0,score-1);updateScore();bin.classList.add('wrong');setTimeout(()=>bin.classList.remove('wrong'),280);
-    setFeedback('ليست السلة المناسبة لهذه القطعة. حاولي مرة أخرى.','bad');return;
-  }
-  counts[target]++;score+=2;updateScore();bin.classList.add('good');setTimeout(()=>bin.classList.remove('good'),300);
-  selected.classList.remove('selected');selected.classList.add('collected');selected=null;updateCounts();
-  setFeedback('ممتاز! واصلي جمع العلب.','good');checkFinish();
+function canMesh(color=0xe84f87,small=false){
+ const g=new THREE.Group();const r=small?.052:.075,h=small?.18:.25;
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,20),mat(color,.28));body.castShadow=true;g.add(body);
+ const top=new THREE.Mesh(new THREE.CylinderGeometry(r*.94,r*.94,.012,20),mat(0xd9e2e6,.2));top.position.y=h/2+.006;g.add(top);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.82,.006,8,20),mat(0xaeb8bd,.22));ring.rotation.x=Math.PI/2;ring.position.y=h/2+.014;g.add(ring);return g
 }
-function updateCounts(){
-  countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100];
-  regroupOnes.classList.toggle('ready',counts[1]>=10);regroupTens.classList.toggle('ready',counts[10]>=10);
+function oneObj(color){
+ const g=new THREE.Group();g.add(canMesh(color,false));const lab=makeLabel('1','#d7447d');lab.position.set(0,.24,.05);lab.scale.multiplyScalar(.45);g.add(lab);tag(g,1);return g
 }
-function updateScore(){scoreChip.textContent='⭐ '+score}
-function regroup1(){
-  if(counts[1]<10)return;
-  counts[1]-=10;counts[10]++;score+=5;updateScore();updateCounts();setFeedback('رائع! 10 آحاد تحولت إلى عشرة واحدة.','good');checkFinish();
+function tenObj(color){
+ const g=new THREE.Group();const xs=[-.15,0,.15,-.075,.075],zs=[-.08,-.08,-.08,.08,.08];
+ for(let i=0;i<5;i++){const c=canMesh(color,true);c.position.set(xs[i],0,zs[i]);g.add(c)}
+ const tray=new THREE.Mesh(new THREE.BoxGeometry(.46,.045,.34),mat(0x2e76bd,.45));tray.position.y=-.12;tray.castShadow=true;g.add(tray);
+ const lab=makeLabel('10','#2f77d0');lab.position.set(0,.26,.02);lab.scale.multiplyScalar(.5);g.add(lab);tag(g,10);return g
 }
-function regroup10(){
-  if(counts[10]<10)return;
-  counts[10]-=10;counts[100]++;score+=5;updateScore();updateCounts();setFeedback('ممتاز! 10 عشرات تحولت إلى مئة واحدة.','good');checkFinish();
+function hundredObj(color){
+ const g=new THREE.Group();for(let z=-1;z<=1;z++)for(let x=-1;x<=1;x++){const c=canMesh(color,true);c.scale.setScalar(.85);c.position.set(x*.12,0,z*.12);g.add(c)}
+ const crate=new THREE.Mesh(new THREE.BoxGeometry(.48,.14,.48),new THREE.MeshStandardMaterial({color:0x21965f,roughness:.5,transparent:true,opacity:.85}));crate.position.y=-.12;crate.castShadow=true;g.add(crate);
+ const lab=makeLabel('100','#198457');lab.position.set(0,.29,.02);lab.scale.multiplyScalar(.54);g.add(lab);tag(g,100);return g
 }
-function remaining(){return document.querySelectorAll('.item:not(.collected)').length}
-function checkFinish(){
-  if(remaining()===0){
-    if(counts[1]>=10||counts[10]>=10){setFeedback('جمعتِ كل العلب. بقيت إعادة التجميع!','bad');return}
-    if(counts[100]===4&&counts[10]===1&&counts[1]===4){
-      clearInterval(timer);setTimeout(showFinish,450);
-    }
-  }
+function tag(o,value){o.userData.value=value;o.userData.start=new THREE.Vector3();o.userData.collected=false;o.traverse(c=>c.userData.dragRoot=o)}
+
+function clearScene(){
+ [...itemsByMonth[1],...itemsByMonth[2]].forEach(o=>root.remove(o));itemsByMonth={1:[],2:[]};
+ Object.values(dropZones).forEach(z=>root.remove(z.group));dropZones={};
 }
-function showFinish(){
-  game.style.display='none';finish.style.display='flex';
-  document.getElementById('finalTime').textContent='⏱ '+elapsed+'ث';
-  document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';
-  document.getElementById('finalScore').textContent='⭐ '+score;
+function createDropZone(x,label,color,value){
+ const group=new THREE.Group();const disc=new THREE.Mesh(new THREE.CircleGeometry(.48,48),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.38,side:THREE.DoubleSide}));disc.rotation.x=-Math.PI/2;disc.position.y=-.01;group.add(disc);
+ const ring=new THREE.Mesh(new THREE.RingGeometry(.49,.58,48),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0;group.add(ring);
+ const lab=makeLabel(label,color);lab.position.set(0,.38,0);group.add(lab);group.position.set(x,-1.20,.1);root.add(group);dropZones[value]={group,x,y:-1.20,value};return group
 }
+function arrange(list){
+ const pos=[];const cols=4,dx=.68,dy=.58;for(let i=0;i<list.length;i++){const row=Math.floor(i/cols),col=i%cols;pos.push([(col-1.5)*dx,.75-row*dy,.08+(row%2)*.02])}
+ list.forEach((o,i)=>{o.position.set(pos[i][0],pos[i][1],pos[i][2]);o.userData.start.copy(o.position);root.add(o)})
+}
+function build(){
+ clearScene();
+ createDropZone(-1.45,'مئات',0x198457,100);createDropZone(0,'عشرات',0x2f77d0,10);createDropZone(1.45,'آحاد',0xd7447d,1);
+ itemsByMonth[1]=[hundredObj(0x55c484),...Array.from({length:7},()=>tenObj(0x4b9ae9)),...Array.from({length:8},()=>oneObj(0xec6a9b))];
+ itemsByMonth[2]=[hundredObj(0x55c484),hundredObj(0x55c484),...Array.from({length:3},()=>tenObj(0x4b9ae9)),...Array.from({length:6},()=>oneObj(0xec6a9b))];
+ setMonth(1);
+}
+function setMonth(n){
+ currentMonth=n;m1.classList.toggle('active',n===1);m2.classList.toggle('active',n===2);
+ itemsByMonth[1].forEach(o=>o.visible=n===1&&!o.userData.collected);itemsByMonth[2].forEach(o=>o.visible=n===2&&!o.userData.collected);
+ const active=itemsByMonth[n].filter(o=>!o.userData.collected);arrange(active);
+ setMessage(n===1?'الشهر الأول 178: اسحبي العلب والحزم والصندوق إلى الخانات المناسبة.':'الشهر الثاني 236: اسحبي العلب والحزم والصناديق إلى الخانات المناسبة.');
+}
+function setPointer(x,y){const r=canvas.getBoundingClientRect();pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1}
+function plane(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
+function findRoot(o){let n=o;while(n){if(n.userData&&n.userData.dragRoot)return n.userData.dragRoot;n=n.parent}return null}
+function down(e){
+ e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);
+ const candidates=itemsByMonth[currentMonth].filter(o=>!o.userData.collected&&o.visible);const hits=raycaster.intersectObjects(candidates,true);if(!hits.length)return;
+ dragging=findRoot(hits[0].object);if(!dragging)return;dragging.scale.multiplyScalar(1.08);dragPlane=plane();const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
+}
+function move(e){
+ if(!dragging)return;e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOffset);dragging.position.x=THREE.MathUtils.clamp(w.x,-2.1,2.1);dragging.position.y=THREE.MathUtils.clamp(w.y,-1.4,1.2)
+}
+function up(){
+ if(!dragging)return;const d=dragging;dragging=null;d.scale.divideScalar(1.08);
+ let nearest=null,dist=99;Object.values(dropZones).forEach(z=>{const dd=Math.hypot(d.position.x-z.x,d.position.y-z.y);if(dd<dist){dist=dd;nearest=z}});
+ if(nearest&&dist<.72){
+   if(+d.userData.value===nearest.value){collect(d,nearest)}
+   else{errors++;score=Math.max(0,score-1);updateHud();setMessage('هذه الخانة غير مناسبة. جرّبي خانة أخرى.',true);snapBack(d)}
+ }else snapBack(d)
+}
+function snapBack(o){o.position.copy(o.userData.start)}
+function collect(o,z){
+ o.userData.collected=true;counts[z.value]++;score+=2;updateHud();setMessage('ممتاز! واصلي جمع القطع.');animateCollect(o,z,()=>{o.visible=false;checkMonth();updateRegroup()})
+}
+function animateCollect(o,z,done){
+ const from=o.position.clone(),to=new THREE.Vector3(z.x,z.y,.12),st=performance.now(),dur=280;
+ function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(from,to,e);o.scale.setScalar(1-e*.75);if(k<1)requestAnimationFrame(tick);else{done();o.scale.setScalar(1)}}requestAnimationFrame(tick)
+}
+function checkMonth(){
+ const left=itemsByMonth[currentMonth].some(o=>!o.userData.collected);if(!left){doneByMonth[currentMonth]=true;if(!doneByMonth[currentMonth===1?2:1]){const n=currentMonth===1?2:1;setMessage('أحسنتِ! انتهيتِ من هذا الشهر. انتقلي للشهر الآخر.');setTimeout(()=>setMonth(n),550)}else{setMessage('جمعتِ كل العلب! الآن أعيدي التجميع حتى يصبح الناتج في أبسط صورة.');updateRegroup();checkFinish()}}
+}
+function updateRegroup(){regroupOnes.disabled=counts[1]<10;regroupTens.disabled=counts[10]<10;regroupOnes.classList.toggle('ready',counts[1]>=10);regroupTens.classList.toggle('ready',counts[10]>=10)}
+function regroup1(){if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;updateHud();updateRegroup();setMessage('رائع! 10 آحاد أصبحت عشرة واحدة.');checkFinish()}
+function regroup10(){if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;updateHud();updateRegroup();setMessage('ممتاز! 10 عشرات أصبحت مئة واحدة.');checkFinish()}
+function checkFinish(){if(doneByMonth[1]&&doneByMonth[2]&&counts[100]===4&&counts[10]===1&&counts[1]===4){clearInterval(timer);setTimeout(()=>{hud.style.display='none';finish.style.display='flex';document.getElementById('finalTime').textContent='⏱ '+elapsed+'ث';document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';document.getElementById('finalScore').textContent='⭐ '+score},400)}}
+function updateHud(){scoreEl.textContent='⭐ '+score}
 function reset(){
-  selected=null;counts={1:0,10:0,100:0};score=0;errors=0;elapsed=0;updateCounts();updateScore();
-  fillMonth(document.getElementById('month1'),1,7,8);fillMonth(document.getElementById('month2'),2,3,6);
-  setFeedback('اختاري أول قطعة من الشهر الأول أو الثاني.','');
-  clearInterval(timer);timeChip.textContent='⏱ 0ث';timer=setInterval(()=>{elapsed++;timeChip.textContent='⏱ '+elapsed+'ث'},1000);
+ counts={1:0,10:0,100:0};score=0;errors=0;elapsed=0;doneByMonth={1:false,2:false};updateHud();clearInterval(timer);timeEl.textContent='⏱ 0ث';timer=setInterval(()=>{elapsed++;timeEl.textContent='⏱ '+elapsed+'ث'},1000);build();updateRegroup()
 }
-document.querySelectorAll('.bin').forEach(bin=>bin.onclick=()=>placeInto(+bin.dataset.target,bin));
-regroupOnes.onclick=regroup1;regroupTens.onclick=regroup10;
-document.getElementById('startBtn').onclick=async()=>{
-  try{await openCamera();start.style.display='none';finish.style.display='none';game.style.display='block';reset()}
-  catch(e){alert('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}
-};
-document.getElementById('againBtn').onclick=()=>{finish.style.display='none';game.style.display='block';reset()};
+m1.onclick=()=>setMonth(1);m2.onclick=()=>setMonth(2);regroupOnes.onclick=regroup1;regroupTens.onclick=regroup10;document.getElementById('resetView').onclick=()=>{positionRoot();setMonth(currentMonth)};
+document.getElementById('startBtn').onclick=async()=>{hideErr();try{await openCamera();if(!renderer)initThree();start.style.display='none';finish.style.display='none';hud.style.display='block';reset()}catch(e){showErr('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}};
+document.getElementById('again').onclick=()=>{finish.style.display='none';hud.style.display='block';reset()};
+function animate(){requestAnimationFrame(animate);renderer&&renderer.render(scene,camera)}
 })();
 </script>
 </body>
