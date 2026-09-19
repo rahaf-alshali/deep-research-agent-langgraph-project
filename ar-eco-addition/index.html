@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>تحدي أصدقاء البيئة AR</title>
+<style>
+:root{--green:#1f9d67;--pink:#df4b87;--blue:#2f77d0;--navy:#17385f;--glass:rgba(255,255,255,.92)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Tahoma,Arial,sans-serif;background:#07130e}
+button{font:inherit}
+#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#07130e;z-index:0}
+#shade{position:fixed;inset:0;background:linear-gradient(rgba(0,35,22,.17),rgba(0,25,18,.34));z-index:1;pointer-events:none}
+#start,#finish{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 20%,rgba(213,247,231,.92),rgba(24,91,62,.93) 52%,rgba(5,28,20,.98) 100%)}
+.card{width:min(94vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 25px 75px rgba(0,0,0,.35);color:#183628}
+.card h1{margin:0 0 8px;font-size:28px;color:#17734d}.card p{margin:8px 0;line-height:1.75;color:#4c5c53;font-weight:700}
+.problem{direction:ltr;font-size:42px;font-weight:900;margin:15px 0;color:#215fc1}.problem span{color:#d7447d}
+.primary{width:100%;border:0;border-radius:17px;padding:15px 16px;background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff;font-size:19px;font-weight:900;box-shadow:0 8px 20px rgba(21,152,95,.25)}
+#game{position:fixed;inset:0;z-index:10;display:none;color:#fff}
+.topbar{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:78px 1fr 78px;gap:7px;align-items:center}
+.topchip{background:rgba(8,40,28,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(9px);padding:9px 8px;border-radius:15px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:14px}
+.headtitle{font-size:16px}
+#content{position:absolute;top:max(62px,calc(env(safe-area-inset-top) + 54px));left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;min-height:0}
+.challenge{background:var(--glass);color:#183628;border-radius:18px;padding:9px 12px;text-align:center;box-shadow:0 8px 25px rgba(0,0,0,.18)}
+.challenge .eq{direction:ltr;font-size:27px;font-weight:900;color:#245db8}.challenge .txt{font-size:12px;font-weight:800;color:#51665b;margin-top:2px}
+.months{display:grid;grid-template-columns:1fr 1fr;gap:7px;min-height:0}
+.month{background:rgba(255,255,255,.91);border-radius:18px;padding:8px;color:#183628;box-shadow:0 7px 22px rgba(0,0,0,.16);min-height:0}
+.month h3{margin:0 0 4px;text-align:center;font-size:15px}.month.one h3{color:#2868bb}.month.two h3{color:#198457}
+.month .num{text-align:center;font-size:22px;font-weight:900;margin-bottom:5px}
+.items{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-content:flex-start}
+.item{position:relative;border:0;background:transparent;padding:0;cursor:pointer;transition:.18s transform,.18s opacity;touch-action:manipulation}
+.item:active{transform:scale(.92)}.item.selected{filter:drop-shadow(0 0 8px #ffd95a);transform:scale(1.12)}
+.item.collected{opacity:0;transform:scale(.2);pointer-events:none}
+.can{width:19px;height:34px;border-radius:5px 5px 7px 7px;background:linear-gradient(90deg,#ef6b9d,#d93f78 55%,#f27ba7);border:1px solid rgba(120,25,70,.25);box-shadow:inset 0 4px 0 rgba(255,255,255,.35)}
+.can:before{content:"";position:absolute;left:3px;right:3px;top:2px;height:3px;border-radius:50%;background:#ffd7e5}
+.pack{width:30px;height:38px;border-radius:7px;background:linear-gradient(135deg,#4ba6ef,#236fc1);display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,12px);gap:2px;place-content:center;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)}
+.pack i{display:block;border-radius:2px;background:#9cd2ff;border:1px solid rgba(255,255,255,.45)}
+.crate{width:42px;height:38px;border-radius:7px;background:linear-gradient(135deg,#29aa68,#157748);box-shadow:inset 0 -5px 0 rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px}
+.badge{position:absolute;right:-4px;top:-5px;min-width:18px;height:18px;border-radius:10px;background:#fff;color:#17385f;border:1px solid #d6e3da;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.collectArea{background:rgba(255,255,255,.91);border-radius:20px;padding:8px;color:#183628;box-shadow:0 7px 22px rgba(0,0,0,.16)}
+.collectTitle{text-align:center;font-size:14px;font-weight:900;margin-bottom:7px}
+.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.bin{border:2px dashed rgba(28,91,62,.24);border-radius:14px;background:#f8fbf9;padding:6px 4px;text-align:center;min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#183628;cursor:pointer}
+.bin:active{transform:scale(.98)}.bin.wrong{animation:shake .25s}.bin.good{animation:pop .3s}
+.binIcon{font-size:22px}.binLabel{font-size:11px;font-weight:900}.binCount{font-size:21px;font-weight:900}
+.bin.ones .binCount{color:#d7447d}.bin.tens .binCount{color:#2c78c8}.bin.hundreds .binCount{color:#178457}
+.regroupRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.regroup{border:0;border-radius:12px;padding:9px 7px;font-weight:900;font-size:12px;color:white;background:#8e98a3;opacity:.45;pointer-events:none}
+.regroup.ready{background:linear-gradient(135deg,#f0a827,#e06a3b);opacity:1;pointer-events:auto;box-shadow:0 5px 15px rgba(224,106,59,.22)}
+#feedback{min-height:34px;background:rgba(8,40,28,.74);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);border-radius:14px;padding:8px 10px;text-align:center;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+#feedback.good{background:rgba(21,130,83,.82)}#feedback.bad{background:rgba(170,53,79,.82)}
+.help{font-weight:800;font-size:11px;color:#596b61;text-align:center;margin-top:5px}
+#finish{display:none}.finishScore{font-size:45px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#eff6f1;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}@keyframes pop{50%{transform:scale(1.06)}}
+@media (min-width:700px){
+  #content{left:5vw;right:5vw;top:max(72px,calc(env(safe-area-inset-top) + 60px));gap:12px}
+  .challenge{padding:12px}.challenge .eq{font-size:34px}.challenge .txt{font-size:15px}
+  .month{padding:12px}.month h3{font-size:19px}.month .num{font-size:28px}.items{gap:8px}
+  .can{width:25px;height:44px}.pack{width:40px;height:48px;grid-template-columns:repeat(2,9px);grid-template-rows:repeat(2,15px)}.crate{width:55px;height:49px;font-size:24px}
+  .collectArea{padding:12px}.collectTitle{font-size:17px}.bin{min-height:105px}.binIcon{font-size:30px}.binLabel{font-size:14px}.binCount{font-size:28px}.regroup{font-size:15px;padding:11px}.help{font-size:13px}
+}
+@media (max-height:690px){
+  .challenge{padding:6px 10px}.challenge .eq{font-size:23px}.challenge .txt{display:none}
+  .month{padding:6px}.month h3{font-size:13px}.month .num{font-size:19px}.items{gap:4px}
+  .can{width:17px;height:29px}.pack{width:27px;height:32px}.crate{width:38px;height:32px}
+  .bin{min-height:66px}.binIcon{font-size:18px}.binCount{font-size:18px}.regroup{padding:7px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<video id="camera" autoplay muted playsinline></video>
+<div id="shade"></div>
+
+<div id="start">
+  <div class="card">
+    <h1>♻️ تحدي أصدقاء البيئة</h1>
+    <p>اجمعي علب الشهرين، وضعي كل نوع في مكانه الصحيح، ثم أعيدي التجميع لتكتشفي المجموع.</p>
+    <div class="problem">178 + <span>236</span></div>
+    <p style="font-size:13px">كل صندوق أخضر = 100، كل حزمة زرقاء = 10، وكل علبة وردية = 1.</p>
+    <button id="startBtn" class="primary">ابدئي النشاط بالواقع المعزز</button>
+  </div>
+</div>
+
+<div id="game">
+  <div class="topbar">
+    <div class="topchip" id="timeChip">⏱ 0ث</div>
+    <div class="topchip headtitle">أصدقاء البيئة ♻️</div>
+    <div class="topchip" id="scoreChip">⭐ 0</div>
+  </div>
+
+  <div id="content">
+    <div class="challenge">
+      <div class="eq">178 + 236 = ؟</div>
+      <div class="txt">اختاري قطعة ثم اضغطي سلة القيمة المنزلية المناسبة.</div>
+    </div>
+
+    <div class="months">
+      <section class="month one">
+        <h3>الشهر الأول</h3>
+        <div class="num">178</div>
+        <div id="month1" class="items"></div>
+      </section>
+      <section class="month two">
+        <h3>الشهر الثاني</h3>
+        <div class="num">236</div>
+        <div id="month2" class="items"></div>
+      </section>
+    </div>
+
+    <section class="collectArea">
+      <div class="collectTitle">منطقة التجميع</div>
+      <div class="bins">
+        <button class="bin hundreds" data-target="100"><div class="binIcon">🟩</div><div class="binLabel">المئات</div><div class="binCount" id="count100">0</div></button>
+        <button class="bin tens" data-target="10"><div class="binIcon">🟦</div><div class="binLabel">العشرات</div><div class="binCount" id="count10">0</div></button>
+        <button class="bin ones" data-target="1"><div class="binIcon">🥫</div><div class="binLabel">الآحاد</div><div class="binCount" id="count1">0</div></button>
+      </div>
+      <div class="regroupRow">
+        <button id="regroupTens" class="regroup">10 عشرات ← مئة</button>
+        <button id="regroupOnes" class="regroup">10 آحاد ← عشرة</button>
+      </div>
+      <div class="help">يمكنكِ إعادة التجميع متى وصل العدد إلى 10.</div>
+    </section>
+
+    <div id="feedback">اختاري أول قطعة من الشهر الأول أو الثاني.</div>
+  </div>
+</div>
+
+<div id="finish">
+  <div class="card">
+    <div style="font-size:44px">🌍♻️</div>
+    <h1>أحسنتِ يا صديقة البيئة!</h1>
+    <p>جمعتِ علب الشهرين وأعدتِ التجميع بشكل صحيح.</p>
+    <div class="finishScore">414 علبة</div>
+    <div class="problem" style="font-size:30px">178 + 236 = <span style="color:#148254">414</span></div>
+    <div class="stats"><span id="finalTime">⏱ 0ث</span><span id="finalErrors">✖ 0 أخطاء</span><span id="finalScore">⭐ 0</span></div>
+    <button id="againBtn" class="primary">إعادة التحدي</button>
+  </div>
+</div>
+
+<script>
+(function(){
+const video=document.getElementById('camera'),start=document.getElementById('start'),game=document.getElementById('game'),finish=document.getElementById('finish');
+const feedback=document.getElementById('feedback'),scoreChip=document.getElementById('scoreChip'),timeChip=document.getElementById('timeChip');
+const countEls={1:document.getElementById('count1'),10:document.getElementById('count10'),100:document.getElementById('count100')};
+const regroupOnes=document.getElementById('regroupOnes'),regroupTens=document.getElementById('regroupTens');
+let selected=null,counts={1:0,10:0,100:0},score=0,errors=0,elapsed=0,timer=null;
+
+async function openCamera(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error('camera');
+  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+  video.srcObject=stream; await video.play();
+}
+function makeItem(value,label){
+  const b=document.createElement('button'); b.className='item'; b.dataset.value=String(value); b.setAttribute('aria-label',label);
+  if(value===1){b.innerHTML='<div class="can"></div><span class="badge">1</span>'}
+  if(value===10){b.innerHTML='<div class="pack"><i></i><i></i><i></i><i></i></div><span class="badge">10</span>'}
+  if(value===100){b.innerHTML='<div class="crate">♻</div><span class="badge">100</span>'}
+  b.onclick=()=>selectItem(b); return b;
+}
+function fillMonth(el,h,t,o){
+  el.innerHTML='';
+  for(let i=0;i<h;i++)el.appendChild(makeItem(100,'مئة'));
+  for(let i=0;i<t;i++)el.appendChild(makeItem(10,'عشرة'));
+  for(let i=0;i<o;i++)el.appendChild(makeItem(1,'آحاد'));
+}
+function selectItem(el){
+  if(el.classList.contains('collected'))return;
+  if(selected)selected.classList.remove('selected');
+  selected=el; el.classList.add('selected');
+  const names={1:'علبة آحاد',10:'حزمة عشرات',100:'صندوق مئات'};
+  setFeedback('اخترتِ '+names[+el.dataset.value]+'، الآن اضغطي السلة المناسبة.','');
+}
+function setFeedback(t,type){feedback.textContent=t;feedback.className=type||''}
+function placeInto(target,bin){
+  if(!selected){setFeedback('اختاري قطعة أولًا ثم اختاري السلة.','bad');return}
+  const value=+selected.dataset.value;
+  if(value!==target){
+    errors++;score=Math.max(0,score-1);updateScore();bin.classList.add('wrong');setTimeout(()=>bin.classList.remove('wrong'),280);
+    setFeedback('ليست السلة المناسبة لهذه القطعة. حاولي مرة أخرى.','bad');return;
+  }
+  counts[target]++;score+=2;updateScore();bin.classList.add('good');setTimeout(()=>bin.classList.remove('good'),300);
+  selected.classList.remove('selected');selected.classList.add('collected');selected=null;updateCounts();
+  setFeedback('ممتاز! واصلي جمع العلب.','good');checkFinish();
+}
+function updateCounts(){
+  countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100];
+  regroupOnes.classList.toggle('ready',counts[1]>=10);regroupTens.classList.toggle('ready',counts[10]>=10);
+}
+function updateScore(){scoreChip.textContent='⭐ '+score}
+function regroup1(){
+  if(counts[1]<10)return;
+  counts[1]-=10;counts[10]++;score+=5;updateScore();updateCounts();setFeedback('رائع! 10 آحاد تحولت إلى عشرة واحدة.','good');checkFinish();
+}
+function regroup10(){
+  if(counts[10]<10)return;
+  counts[10]-=10;counts[100]++;score+=5;updateScore();updateCounts();setFeedback('ممتاز! 10 عشرات تحولت إلى مئة واحدة.','good');checkFinish();
+}
+function remaining(){return document.querySelectorAll('.item:not(.collected)').length}
+function checkFinish(){
+  if(remaining()===0){
+    if(counts[1]>=10||counts[10]>=10){setFeedback('جمعتِ كل العلب. بقيت إعادة التجميع!','bad');return}
+    if(counts[100]===4&&counts[10]===1&&counts[1]===4){
+      clearInterval(timer);setTimeout(showFinish,450);
+    }
+  }
+}
+function showFinish(){
+  game.style.display='none';finish.style.display='flex';
+  document.getElementById('finalTime').textContent='⏱ '+elapsed+'ث';
+  document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';
+  document.getElementById('finalScore').textContent='⭐ '+score;
+}
+function reset(){
+  selected=null;counts={1:0,10:0,100:0};score=0;errors=0;elapsed=0;updateCounts();updateScore();
+  fillMonth(document.getElementById('month1'),1,7,8);fillMonth(document.getElementById('month2'),2,3,6);
+  setFeedback('اختاري أول قطعة من الشهر الأول أو الثاني.','');
+  clearInterval(timer);timeChip.textContent='⏱ 0ث';timer=setInterval(()=>{elapsed++;timeChip.textContent='⏱ '+elapsed+'ث'},1000);
+}
+document.querySelectorAll('.bin').forEach(bin=>bin.onclick=()=>placeInto(+bin.dataset.target,bin));
+regroupOnes.onclick=regroup1;regroupTens.onclick=regroup10;
+document.getElementById('startBtn').onclick=async()=>{
+  try{await openCamera();start.style.display='none';finish.style.display='none';game.style.display='block';reset()}
+  catch(e){alert('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}
+};
+document.getElementById('againBtn').onclick=()=>{finish.style.display='none';game.style.display='block';reset()};
+})();
+</script>
+</body>
+</html>
