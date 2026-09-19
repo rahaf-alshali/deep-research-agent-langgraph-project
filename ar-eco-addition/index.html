@@ -6,52 +6,51 @@
 <title>أصدقاء البيئة AR</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
-:root{--green:#1b9d62;--blue:#2f79d2;--pink:#e85b8d;--ink:#17375e}
+:root{--green:#1d9b62;--blue:#3479d0;--pink:#e45c87;--ink:#17375e}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Tahoma,Arial,sans-serif;touch-action:none}
 button{font:inherit}
 #camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0}
 #three{position:fixed;inset:0;width:100%;height:100%;z-index:1;touch-action:none}
-#start,#finish,#helpBox{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(12,35,26,.64);backdrop-filter:blur(8px)}
-.panel{width:min(92vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);color:#21372c}
-.panel h1{margin:0 0 8px;color:#17734d;font-size:29px}.panel p{margin:8px 0;line-height:1.75;color:#53645b;font-weight:700}
+#start,#finish{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(10,35,25,.63);backdrop-filter:blur(7px)}
+.panel{width:min(92vw,470px);background:rgba(255,255,255,.97);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);color:#203a2d}
+.panel h1{margin:0 0 8px;color:#17734d;font-size:29px}.panel p{margin:8px 0;line-height:1.7;color:#53645b;font-weight:700}
 .problem{direction:ltr;font-size:42px;font-weight:900;color:#245fc1;margin:14px 0}.problem span{color:#da447d}
-.primary,.secondary{width:100%;border:0;border-radius:17px;padding:14px 16px;font-weight:900;font-size:18px}
-.primary{background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff}.secondary{margin-top:10px;background:#eef3f0;color:#355446}
+.primary{width:100%;border:0;border-radius:17px;padding:15px 16px;background:linear-gradient(135deg,#15985f,#2e7bcf);color:#fff;font-size:19px;font-weight:900}
 #hud{position:fixed;inset:0;z-index:10;display:none;color:#fff;pointer-events:none}
-.top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:86px 1fr 86px;gap:8px;align-items:center}
-.topchip{background:rgba(255,255,255,.94);color:#17375e;border:1px solid rgba(255,255,255,.7);padding:9px 7px;border-radius:18px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:14px}
-.title{font-size:18px;color:#166944}
-.months{position:absolute;top:max(60px,calc(env(safe-area-inset-top) + 52px));left:50%;transform:translateX(-50%);width:min(92vw,560px);display:grid;grid-template-columns:1fr 1fr;gap:8px;pointer-events:none}
-.month{border:0;border-radius:18px;padding:10px 8px;background:rgba(255,255,255,.94);box-shadow:0 7px 20px rgba(0,0,0,.18);font-weight:900;color:#17375e}
-.month strong{display:block;font-size:14px}.month span{display:block;font-size:25px;margin-top:2px}
-.month.one{outline:3px solid #77b7ff;background:#f0f7ff}.month.two{outline:3px solid #60d487;background:#effff4;color:#17683f}
-#instruction{position:absolute;left:50%;bottom:calc(225px + max(10px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(88vw,520px);background:rgba(255,255,255,.94);color:#17375e;border-radius:999px;padding:10px 16px;text-align:center;font-weight:900;box-shadow:0 7px 22px rgba(0,0,0,.2);font-size:14px}
-.dropWrap{position:absolute;left:8px;right:8px;bottom:calc(62px + max(8px,env(safe-area-inset-bottom)));display:grid;grid-template-columns:repeat(3,1fr);gap:7px;pointer-events:auto}
-.drop{border:2px solid rgba(255,255,255,.7);border-radius:18px;min-height:145px;padding:8px 6px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#17375e;position:relative}
-.drop.h{background:linear-gradient(#c9f6d3,#94e8a7)}.drop.t{background:linear-gradient(#d6edff,#9ed0ff)}.drop.o{background:linear-gradient(#ffd8e6,#f6a5c2)}
-.drop .icon{font-size:28px;line-height:1}.drop .label{font-size:14px;font-weight:900;margin-top:2px}.drop .val{font-size:15px;font-weight:900}.drop .count{font-size:25px;font-weight:900;margin-top:4px}
-.drop .target{position:absolute;left:10px;right:10px;bottom:10px;height:45px;border:3px dashed rgba(255,255,255,.9);border-radius:12px}
-.drop.hot{transform:scale(1.03);box-shadow:0 0 0 4px rgba(255,255,255,.45),0 10px 28px rgba(0,0,0,.23)}
-.regroup{position:absolute;left:50%;bottom:calc(13px + max(6px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(72vw,430px);display:grid;grid-template-columns:1fr 1fr;gap:8px;pointer-events:auto}
-.rbtn{border:0;border-radius:15px;padding:9px 8px;font-weight:900;font-size:12px;color:#273b55;background:#fff5d7;box-shadow:0 5px 15px rgba(0,0,0,.18);opacity:.45}
-.rbtn.ready{opacity:1;background:#fff0bf}
-.corner{position:absolute;bottom:calc(10px + max(8px,env(safe-area-inset-bottom)));width:54px;height:54px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#17375e;font-size:12px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,.18);pointer-events:auto}
-#undo{left:10px}#help{right:10px}
-#finish{display:none}.finishScore{font-size:45px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#eff6f1;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
-#helpBox{display:none}.helpText{text-align:right;line-height:1.8}
+.top{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:grid;grid-template-columns:78px 1fr 78px;gap:7px;align-items:center}
+.chip{background:rgba(255,255,255,.94);color:#17375e;border:1px solid rgba(255,255,255,.7);padding:9px 6px;border-radius:16px;text-align:center;font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.18);font-size:13px}
+.title{font-size:17px;color:#166944}
+.months{position:absolute;top:max(58px,calc(env(safe-area-inset-top) + 50px));left:50%;transform:translateX(-50%);width:min(94vw,640px);display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.month{border-radius:18px;padding:9px 8px;background:rgba(255,255,255,.95);box-shadow:0 7px 20px rgba(0,0,0,.17);text-align:center;color:#17375e}
+.month.one{outline:3px solid #79baff;background:#f2f8ff}.month.two{outline:3px solid #69d58e;background:#f0fff5;color:#17683f}
+.month strong{display:block;font-size:14px}.month span{display:block;font-size:24px;font-weight:900}
+#hint{position:absolute;left:50%;bottom:calc(205px + max(10px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(90vw,560px);background:rgba(255,255,255,.95);color:#17375e;border-radius:999px;padding:9px 14px;text-align:center;font-size:13px;font-weight:900;box-shadow:0 7px 20px rgba(0,0,0,.18)}
+.dropWrap{position:absolute;left:8px;right:8px;bottom:calc(53px + max(8px,env(safe-area-inset-bottom)));display:grid;grid-template-columns:repeat(3,1fr);gap:7px;pointer-events:auto}
+.drop{min-height:133px;border-radius:18px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;color:#17375e;box-shadow:0 8px 22px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.8);transition:.15s transform,.15s box-shadow}
+.drop.h{background:linear-gradient(#d4f8dc,#9ee8af)}.drop.t{background:linear-gradient(#e0f1ff,#abd5ff)}.drop.o{background:linear-gradient(#ffe0eb,#f7aec6)}
+.drop.hot{transform:scale(1.04);box-shadow:0 0 0 4px rgba(255,255,255,.55),0 10px 28px rgba(0,0,0,.22)}
+.drop .icon{font-size:29px}.drop .label{font-size:13px;font-weight:900}.drop .val{font-size:13px;font-weight:900}.drop .count{font-size:27px;font-weight:900;margin-top:2px}
+.drop .target{margin-top:auto;width:82%;height:36px;border:3px dashed rgba(255,255,255,.95);border-radius:12px}
+.regroup{position:absolute;left:50%;bottom:calc(8px + max(6px,env(safe-area-inset-bottom)));transform:translateX(-50%);width:min(68vw,440px);display:grid;grid-template-columns:1fr 1fr;gap:6px;pointer-events:auto}
+.rbtn{border:0;border-radius:14px;padding:8px 6px;font-weight:900;font-size:11px;background:#fff4cf;color:#385066;box-shadow:0 5px 14px rgba(0,0,0,.17);opacity:.45}
+.rbtn.ready{opacity:1;background:#ffe39a}
+#finish{display:none}.finishScore{font-size:46px;font-weight:900;color:#148254;margin:8px 0}.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.stats span{background:#eff6f1;border-radius:12px;padding:8px 10px;font-weight:900;font-size:13px}
 #err{position:fixed;z-index:50;left:14px;right:14px;bottom:18px;display:none;background:#fff3cd;color:#594900;padding:13px;border-radius:14px;text-align:center;font-weight:800}
 @media(max-width:430px){
- .top{grid-template-columns:76px 1fr 76px}.topchip{font-size:12px;padding:8px 5px}.title{font-size:16px}
- .months{top:max(56px,calc(env(safe-area-inset-top) + 48px));width:90vw}.month{padding:8px 6px}.month span{font-size:22px}
- #instruction{bottom:calc(205px + max(8px,env(safe-area-inset-bottom)));font-size:12px}
- .dropWrap{bottom:calc(58px + max(6px,env(safe-area-inset-bottom)));gap:5px}.drop{min-height:128px;padding:7px 4px}.drop .icon{font-size:24px}.drop .label{font-size:12px}.drop .val{font-size:13px}.drop .count{font-size:22px}.drop .target{height:40px;left:7px;right:7px;bottom:8px}
- .regroup{width:66vw;gap:5px}.rbtn{font-size:10px;padding:8px 5px}.corner{width:48px;height:48px;font-size:11px}
+ .top{grid-template-columns:70px 1fr 70px}.chip{font-size:11px}.title{font-size:15px}
+ .months{width:94vw}.month{padding:7px}.month strong{font-size:12px}.month span{font-size:21px}
+ #hint{bottom:calc(190px + max(8px,env(safe-area-inset-bottom)));font-size:11px;padding:8px 11px}
+ .dropWrap{bottom:calc(49px + max(6px,env(safe-area-inset-bottom)));gap:5px}.drop{min-height:122px;padding:6px 3px}.drop .icon{font-size:25px}.drop .label{font-size:11px}.drop .val{font-size:11px}.drop .count{font-size:23px}.drop .target{height:31px}
+ .regroup{width:64vw}.rbtn{font-size:9px;padding:7px 4px}
 }
 @media(min-width:700px){
- .top{left:6vw;right:6vw}.months{width:min(66vw,620px)}#instruction{width:min(60vw,620px);font-size:16px;bottom:calc(265px + max(10px,env(safe-area-inset-bottom)))}
- .dropWrap{left:8vw;right:8vw;bottom:calc(76px + max(8px,env(safe-area-inset-bottom)));gap:12px}.drop{min-height:180px}.drop .icon{font-size:36px}.drop .label{font-size:18px}.drop .val{font-size:18px}.drop .count{font-size:32px}.drop .target{height:60px}
- .regroup{bottom:calc(16px + max(8px,env(safe-area-inset-bottom)));width:min(55vw,540px)}.rbtn{font-size:15px}.corner{width:60px;height:60px}
+ .top{left:6vw;right:6vw}.chip{font-size:15px}.title{font-size:19px}
+ .months{width:min(72vw,700px)}.month strong{font-size:17px}.month span{font-size:30px}
+ #hint{bottom:calc(255px + max(10px,env(safe-area-inset-bottom)));font-size:16px;width:min(62vw,660px)}
+ .dropWrap{left:8vw;right:8vw;bottom:calc(72px + max(8px,env(safe-area-inset-bottom)));gap:12px}
+ .drop{min-height:180px}.drop .icon{font-size:38px}.drop .label{font-size:18px}.drop .val{font-size:17px}.drop .count{font-size:34px}.drop .target{height:55px}
+ .regroup{bottom:calc(14px + max(8px,env(safe-area-inset-bottom)));width:min(50vw,560px)}.rbtn{font-size:15px;padding:10px}
 }
 </style>
 </head>
@@ -62,26 +61,26 @@ button{font:inherit}
 <div id="start">
  <div class="panel">
   <h1>🌍 أصدقاء البيئة</h1>
-  <p>ستظهر العلب أمامكِ فوق البيئة الحقيقية. اسحبي كل نوع إلى خانة القيمة المنزلية الصحيحة، ثم أعيدي التجميع.</p>
+  <p>تظهر أمامكِ 6 قطع كبيرة فقط تمثل الشهرين، حتى يكون النشاط واضحًا على الجوال والآيباد.</p>
   <div class="problem">178 + <span>236</span></div>
-  <p style="font-size:13px">الصندوق الأخضر = 100، الحزمة الزرقاء = 10، العلبة الحمراء = 1.</p>
+  <p style="font-size:13px">كل قطعة عليها عددها: ×1 أو ×2 للمئات، ×7 أو ×3 للعشرات، ×8 أو ×6 للآحاد.</p>
   <button id="startBtn" class="primary">ابدئي النشاط</button>
  </div>
 </div>
 
 <div id="hud">
  <div class="top">
-  <div id="score" class="topchip">⭐ 0 نقاط</div>
-  <div class="topchip title">🌿 أصدقاء البيئة 🌍</div>
-  <div id="timer" class="topchip">⏱ 02:30</div>
+  <div id="score" class="chip">⭐ 0</div>
+  <div class="chip title">🌿 أصدقاء البيئة 🌍</div>
+  <div id="timer" class="chip">⏱ 02:30</div>
  </div>
 
  <div class="months">
-  <div id="m1" class="month one"><strong>الشهر الأول</strong><span>178</span></div>
-  <div id="m2" class="month two"><strong>الشهر الثاني</strong><span>236</span></div>
+  <div class="month one"><strong>الشهر الأول</strong><span>178</span></div>
+  <div class="month two"><strong>الشهر الثاني</strong><span>236</span></div>
  </div>
 
- <div id="instruction">☝️ المجموعتان ظاهرتان معًا: اسحبي أي قطعة إلى الخانة المناسبة</div>
+ <div id="hint">اسحبي كل قطعة كبيرة إلى الخانة المناسبة</div>
 
  <div class="dropWrap">
   <div id="zone100" class="drop h" data-value="100"><div class="icon">🟩</div><div class="label">المئات</div><div class="val">100</div><div id="c100" class="count">0</div><div class="target"></div></div>
@@ -90,51 +89,34 @@ button{font:inherit}
  </div>
 
  <div class="regroup">
-  <button id="regroup10" class="rbtn">🟦 10 عشرات ← مئة</button>
-  <button id="regroup1" class="rbtn">🥫 10 آحاد ← عشرة</button>
+  <button id="regroup10" class="rbtn">10 عشرات ← مئة</button>
+  <button id="regroup1" class="rbtn">10 آحاد ← عشرة</button>
  </div>
-
- <button id="undo" class="corner">↶<br>تراجع</button>
- <button id="help" class="corner">؟<br>مساعدة</button>
 </div>
 
 <div id="finish">
  <div class="panel">
   <div style="font-size:44px">🌍✨</div>
   <h1 id="finishTitle">أحسنتِ!</h1>
-  <p id="finishText">اكتمل النشاط.</p>
-  <div id="finalResult" class="finishScore">414 علبة</div>
+  <p id="finishText">جمعتِ قطع الشهرين وأعدتِ التجميع بشكل صحيح.</p>
+  <div class="finishScore">414 علبة</div>
   <div class="problem" style="font-size:30px">178 + 236 = <span style="color:#148254">414</span></div>
   <div class="stats"><span id="finalTime">⏱ 00:00</span><span id="finalErrors">✖ 0 أخطاء</span><span id="finalScore">⭐ 0</span></div>
   <button id="again" class="primary">إعادة النشاط</button>
- </div>
-</div>
-
-<div id="helpBox">
- <div class="panel">
-  <h1>طريقة اللعب</h1>
-  <div class="helpText">
-   1. ستظهر قطع الشهر الأول 178 والشهر الثاني 236 معًا أمامكِ.<br>
-   2. اسحبي الصندوق الأخضر إلى <b>المئات</b>.<br>
-   3. اسحبي الحزمة الزرقاء إلى <b>العشرات</b>.<br>
-   4. اسحبي العلبة الحمراء إلى <b>الآحاد</b>.<br>
-   5. عندما يصبح لديكِ 10 آحاد أعيدي تجميعها إلى عشرة، و10 عشرات إلى مئة.
-  </div>
-  <button id="closeHelp" class="primary" style="margin-top:15px">فهمت</button>
  </div>
 </div>
 <div id="err"></div>
 
 <script>
 (function(){
-const video=document.getElementById('camera'),canvas=document.getElementById('three'),start=document.getElementById('start'),hud=document.getElementById('hud'),finish=document.getElementById('finish'),helpBox=document.getElementById('helpBox'),err=document.getElementById('err');
-const scoreEl=document.getElementById('score'),timerEl=document.getElementById('timer'),instruction=document.getElementById('instruction');
+const video=document.getElementById('camera'),canvas=document.getElementById('three'),start=document.getElementById('start'),hud=document.getElementById('hud'),finish=document.getElementById('finish'),err=document.getElementById('err');
+const scoreEl=document.getElementById('score'),timerEl=document.getElementById('timer'),hint=document.getElementById('hint');
 const countEls={1:document.getElementById('c1'),10:document.getElementById('c10'),100:document.getElementById('c100')};
 const zones={1:document.getElementById('zone1'),10:document.getElementById('zone10'),100:document.getElementById('zone100')};
-const m1=document.getElementById('m1'),m2=document.getElementById('m2'),regroup1=document.getElementById('regroup1'),regroup10=document.getElementById('regroup10');
+const regroup1=document.getElementById('regroup1'),regroup10=document.getElementById('regroup10');
 
 let renderer,scene,camera,root,dragging=null,dragPlane=null,dragOffset=new THREE.Vector3();
-let items={1:[],2:[]},counts={1:0,10:0,100:0},done={1:false,2:false},score=0,errors=0,timeLeft=150,timer=null,history=[];
+let objects=[],counts={1:0,10:0,100:0},score=0,errors=0,timeLeft=150,timer=null;
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
 
 function showErr(t){err.textContent=t;err.style.display='block'}function hideErr(){err.style.display='none'}
@@ -145,136 +127,91 @@ async function openCamera(){
 }
 function initThree(){
  renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);camera.position.set(0,0,0);
- scene.add(new THREE.HemisphereLight(0xffffff,0x4a4d4b,1.75));const dl=new THREE.DirectionalLight(0xfff1db,2.25);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
+ scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(46,innerWidth/innerHeight,.1,100);camera.position.set(0,0,0);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x4a4d4b,1.8));const dl=new THREE.DirectionalLight(0xfff1db,2.3);dl.position.set(3,5,4);dl.castShadow=true;scene.add(dl);
  root=new THREE.Group();scene.add(root);positionRoot();
- window.addEventListener('resize',resize);canvas.addEventListener('pointerdown',down,{passive:false});canvas.addEventListener('pointermove',move,{passive:false});canvas.addEventListener('pointerup',up,{passive:false});canvas.addEventListener('pointercancel',up,{passive:false});animate();
+ window.addEventListener('resize',resize);canvas.addEventListener('pointerdown',down,{passive:false});canvas.addEventListener('pointermove',move,{passive:false});canvas.addEventListener('pointerup',up,{passive:false});canvas.addEventListener('pointercancel',up,{passive:false});animate()
 }
-function positionRoot(){const mobile=innerWidth<600;root.position.set(0,mobile?-.15:.05,mobile?-5.4:-5.0);root.rotation.x=-.15;root.scale.setScalar(mobile?.78:1)}
+function positionRoot(){const mobile=innerWidth<600;root.position.set(0,mobile?-.15:.05,mobile?-5.2:-5.0);root.rotation.x=-.12;root.scale.setScalar(mobile?.83:1)}
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false);positionRoot()}
-function mat(c,r=.32){return new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.08})}
-
-function can(color=0xd94b4b,scale=.95){
- const g=new THREE.Group(),r=.10*scale,h=.36*scale;
- const body=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,28),mat(color,.25));body.castShadow=true;g.add(body);
- const top=new THREE.Mesh(new THREE.CylinderGeometry(r*.96,r*.96,.018*scale,28),mat(0xd9dee2,.15));top.position.y=h/2+.009*scale;g.add(top);
- const bottom=top.clone();bottom.position.y=-h/2-.009*scale;g.add(bottom);
- const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.78,.009*scale,8,24),mat(0x9da7ad,.15));ring.rotation.x=Math.PI/2;ring.position.y=h/2+.02*scale;g.add(ring);
- return g
+function mat(c,r=.30){return new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.08})}
+function labelSprite(text,bg,scale=.8){
+ const c=document.createElement('canvas');c.width=320;c.height=110;const x=c.getContext('2d');x.fillStyle=bg;x.beginPath();x.roundRect(4,4,312,102,24);x.fill();x.fillStyle='#fff';x.font='bold 48px Tahoma,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,160,58);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.85*scale,.29*scale,1);return s
 }
-function labelSprite(text,bg){
- const c=document.createElement('canvas');c.width=300;c.height=95;const x=c.getContext('2d');x.fillStyle=bg;x.beginPath();x.roundRect(4,4,292,87,22);x.fill();x.fillStyle='#fff';x.font='bold 42px Tahoma,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(text,150,50);
- const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(.70,.22,1);return s
+function can(color=0xd94b4b,scale=1){
+ const g=new THREE.Group(),r=.13*scale,h=.46*scale;
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,30),mat(color,.24));body.castShadow=true;g.add(body);
+ const top=new THREE.Mesh(new THREE.CylinderGeometry(r*.96,r*.96,.02*scale,30),mat(0xd9dee2,.15));top.position.y=h/2+.01*scale;g.add(top);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.78,.012*scale,8,24),mat(0x9da7ad,.15));ring.rotation.x=Math.PI/2;ring.position.y=h/2+.025*scale;g.add(ring);return g
 }
-function oneObj(){
- const g=new THREE.Group();g.add(can(0xd84848,1.05));tag(g,1);return g
+function oneGroup(q,month){
+ const g=new THREE.Group();g.add(can(month===1?0xd94b4b:0xe66b98,1.12));const badge=labelSprite('×'+q,month===1?'#d64a4a':'#d84f88',.78);badge.position.set(.22,.30,.08);g.add(badge);tag(g,1,q,month);return g
 }
-function tenObj(){
- const g=new THREE.Group();const positions=[[-.16,0,-.08],[0,0,-.08],[.16,0,-.08],[-.08,0,.10],[.08,0,.10]];
- positions.forEach(p=>{const c=can(0x2d76d2,.68);c.position.set(...p);g.add(c)});
- const band=new THREE.Mesh(new THREE.BoxGeometry(.46,.10,.30),new THREE.MeshStandardMaterial({color:0xc79b5a,roughness:.55}));band.position.y=-.03;g.add(band);
- const lab=labelSprite('10','#2f79d2');lab.position.set(0,.30,.05);lab.scale.multiplyScalar(.62);g.add(lab);tag(g,10);return g
+function tenGroup(q,month){
+ const g=new THREE.Group();const positions=[[-.18,0,-.10],[0,0,-.10],[.18,0,-.10],[-.09,0,.11],[.09,0,.11]];
+ positions.forEach(p=>{const c=can(month===1?0x2f78d1:0x4096e5,.76);c.position.set(...p);g.add(c)});
+ const tray=new THREE.Mesh(new THREE.BoxGeometry(.52,.11,.34),new THREE.MeshStandardMaterial({color:0xc89d5e,roughness:.55}));tray.position.y=-.04;g.add(tray);
+ const val=labelSprite('10','#2f79d2',.60);val.position.set(-.18,.35,.06);g.add(val);
+ const badge=labelSprite('×'+q,'#17375e',.70);badge.position.set(.20,.35,.06);g.add(badge);tag(g,10,q,month);return g
 }
-function hundredObj(){
- const g=new THREE.Group();
- for(let z=-1;z<=1;z++)for(let x=-2;x<=2;x++){const c=can(0xd9e1e5,.45);c.position.set(x*.10,.06,z*.11);g.add(c)}
- const box=new THREE.Mesh(new THREE.BoxGeometry(.62,.34,.48),new THREE.MeshStandardMaterial({color:0x178a50,roughness:.48,transparent:true,opacity:.90}));box.position.y=-.13;box.castShadow=true;g.add(box);
- const lab=labelSprite('100','#188457');lab.position.set(0,.38,.05);lab.scale.multiplyScalar(.70);g.add(lab);tag(g,100);return g
+function hundredGroup(q,month){
+ const g=new THREE.Group();for(let z=-1;z<=1;z++)for(let x=-2;x<=2;x++){const c=can(0xdce4e7,.50);c.position.set(x*.11,.07,z*.12);g.add(c)}
+ const box=new THREE.Mesh(new THREE.BoxGeometry(.70,.38,.54),new THREE.MeshStandardMaterial({color:month===1?0x168b52:0x27a665,roughness:.5,transparent:true,opacity:.93}));box.position.y=-.15;box.castShadow=true;g.add(box);
+ const val=labelSprite('100','#188457',.62);val.position.set(-.18,.46,.06);g.add(val);
+ const badge=labelSprite('×'+q,'#17375e',.70);badge.position.set(.23,.46,.06);g.add(badge);tag(g,100,q,month);return g
 }
-function tag(o,value){o.userData.value=value;o.userData.collected=false;o.userData.home=new THREE.Vector3();o.traverse(c=>c.userData.dragRoot=o)}
-function clearObjects(){[...items[1],...items[2]].forEach(o=>root.remove(o));items={1:[],2:[]}}
+function tag(o,value,qty,month){o.userData.value=value;o.userData.qty=qty;o.userData.month=month;o.userData.collected=false;o.userData.home=new THREE.Vector3();o.traverse(c=>c.userData.dragRoot=o)}
+function clearObjects(){objects.forEach(o=>root.remove(o));objects=[]}
 function build(){
  clearObjects();
- items[1]=[hundredObj(),...Array.from({length:7},()=>tenObj()),...Array.from({length:8},()=>oneObj())];
- items[2]=[hundredObj(),hundredObj(),...Array.from({length:3},()=>tenObj()),...Array.from({length:6},()=>oneObj())];
- arrangeBoth();
- instruction.textContent='☝️ الشهر الأول 178 والشهر الثاني 236 ظاهران معًا — اسحبي أي قطعة للخانة المناسبة';
+ objects=[hundredGroup(1,1),tenGroup(7,1),oneGroup(8,1),hundredGroup(2,2),tenGroup(3,2),oneGroup(6,2)];
+ arrange();
 }
-function placeItem(o,x,y,s){
- o.visible=!o.userData.collected;o.position.set(x,y,.06);o.userData.home.copy(o.position);o.scale.setScalar(s);if(!o.parent)root.add(o)
-}
-function arrangeBoth(){
- const a=items[1].filter(o=>!o.userData.collected),b=items[2].filter(o=>!o.userData.collected);
- // الشهر الأول 178 في الجهة اليسرى
- let a100=a.filter(o=>o.userData.value===100),a10=a.filter(o=>o.userData.value===10),a1=a.filter(o=>o.userData.value===1);
- a100.forEach((o,i)=>placeItem(o,-1.55+i*.55,1.05,.58));
- a10.forEach((o,i)=>placeItem(o,-1.78+(i%4)*.42,.52-Math.floor(i/4)*.48,.52));
- a1.forEach((o,i)=>placeItem(o,-1.78+(i%4)*.36,-.48-Math.floor(i/4)*.38,.62));
- // الشهر الثاني 236 في الجهة اليمنى
- let b100=b.filter(o=>o.userData.value===100),b10=b.filter(o=>o.userData.value===10),b1=b.filter(o=>o.userData.value===1);
- b100.forEach((o,i)=>placeItem(o,.98+i*.68,1.05,.58));
- b10.forEach((o,i)=>placeItem(o,1.02+i*.48,.40,.52));
- b1.forEach((o,i)=>placeItem(o,.98+(i%3)*.40,-.26-Math.floor(i/3)*.38,.62));
+function arrange(){
+ const mobile=innerWidth<600;
+ const pos=mobile?[[-1.35,.95],[-1.35,.10],[-1.35,-.78],[1.35,.95],[1.35,.10],[1.35,-.78]]:[[-1.65,1.00],[-1.65,.05],[-1.65,-.90],[1.65,1.00],[1.65,.05],[1.65,-.90]];
+ objects.forEach((o,i)=>{if(o.userData.collected){o.visible=false;return}o.visible=true;o.position.set(pos[i][0],pos[i][1],.06);o.userData.home.copy(o.position);o.scale.setScalar(o.userData.value===100?.92:o.userData.value===10?.95:1.08);if(!o.parent)root.add(o)})
 }
 function setPointer(x,y){const r=canvas.getBoundingClientRect();pointer.x=((x-r.left)/r.width)*2-1;pointer.y=-((y-r.top)/r.height)*2+1}
 function findRoot(o){let n=o;while(n){if(n.userData&&n.userData.dragRoot)return n.userData.dragRoot;n=n.parent}return null}
-function dragPlaneForRoot(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
+function planeForRoot(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
 function down(e){
- e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);
- const candidates=[...items[1],...items[2]].filter(o=>o.visible&&!o.userData.collected);const hits=raycaster.intersectObjects(candidates,true);if(!hits.length)return;
- dragging=findRoot(hits[0].object);if(!dragging)return;dragging.scale.multiplyScalar(1.10);dragPlane=dragPlaneForRoot();const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
+ e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(objects.filter(o=>o.visible&&!o.userData.collected),true);if(!hits.length)return;
+ dragging=findRoot(hits[0].object);if(!dragging)return;dragging.scale.multiplyScalar(1.08);dragPlane=planeForRoot();const w=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOffset.copy(dragging.position).sub(w)}
 }
 function move(e){
- if(!dragging)return;e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOffset);dragging.position.x=THREE.MathUtils.clamp(w.x,-2.2,2.2);dragging.position.y=THREE.MathUtils.clamp(w.y,-1.5,1.6);
- const target=findZoneAt(e.clientX,e.clientY);Object.values(zones).forEach(z=>z.classList.remove('hot'));if(target)zones[target].classList.add('hot');
+ if(!dragging)return;e.preventDefault();setPointer(e.clientX,e.clientY);raycaster.setFromCamera(pointer,camera);const w=new THREE.Vector3();if(!raycaster.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOffset);dragging.position.x=THREE.MathUtils.clamp(w.x,-2.2,2.2);dragging.position.y=THREE.MathUtils.clamp(w.y,-1.35,1.45);
+ const target=findZoneAt(e.clientX,e.clientY);Object.values(zones).forEach(z=>z.classList.remove('hot'));if(target)zones[target].classList.add('hot')
 }
 function up(e){
- Object.values(zones).forEach(z=>z.classList.remove('hot'));if(!dragging)return;const d=dragging;dragging=null;d.scale.divideScalar(1.10);
+ Object.values(zones).forEach(z=>z.classList.remove('hot'));if(!dragging)return;const d=dragging;dragging=null;d.scale.divideScalar(1.08);
  const target=findZoneAt(e.clientX,e.clientY);
- if(target){
-   if(+d.userData.value===target)collect(d,target);
-   else{errors++;score=Math.max(0,score-1);updateHud();instruction.textContent='❌ هذه الخانة غير مناسبة، حاولي مرة أخرى';snapBack(d)}
- }else snapBack(d)
+ if(target){if(+d.userData.value===target)collect(d,target);else{errors++;score=Math.max(0,score-1);updateHud();hint.textContent='❌ هذه الخانة غير مناسبة، حاولي مرة أخرى';d.position.copy(d.userData.home)}}else d.position.copy(d.userData.home)
 }
 function findZoneAt(x,y){for(const [v,z] of Object.entries(zones)){const r=z.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return +v}return null}
-function snapBack(o){o.position.copy(o.userData.home)}
 function collect(o,value){
- o.userData.collected=true;counts[value]++;score+=2;history.push({type:'collect',obj:o,value});updateHud();updateButtons();
- animateCollect(o,()=>{o.visible=false;checkAll();arrangeBoth();checkFinish()})
+ o.userData.collected=true;counts[value]+=o.userData.qty;score+=3;updateHud();updateButtons();hint.textContent='✅ ممتاز! أضيفت '+o.userData.qty+' إلى خانة '+(value===100?'المئات':value===10?'العشرات':'الآحاد');
+ animateCollect(o,()=>{o.visible=false;checkAll()})
 }
-function animateCollect(o,done){
- const startP=o.position.clone(),to=new THREE.Vector3(0,-1.35,.1),st=performance.now(),dur=260;
- function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(startP,to,e);o.scale.multiplyScalar(k<1?.99:.98);if(k<1)requestAnimationFrame(tick);else done()}requestAnimationFrame(tick)
-}
-function checkAll(){
- done[1]=!items[1].some(o=>!o.userData.collected);
- done[2]=!items[2].some(o=>!o.userData.collected);
- if(done[1]&&done[2]) instruction.textContent='✅ جُمعت قطع الشهرين كلها — الآن نفّذي إعادة التجميع';
-}
-function updateHud(){scoreEl.textContent='⭐ '+score+' نقاط';countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100]}
+function animateCollect(o,done){const a=o.position.clone(),b=new THREE.Vector3(0,-1.30,.08),st=performance.now(),dur=260;function tick(t){const k=Math.min(1,(t-st)/dur),e=1-Math.pow(1-k,3);o.position.lerpVectors(a,b,e);if(k<1)requestAnimationFrame(tick);else done()}requestAnimationFrame(tick)}
+function updateHud(){scoreEl.textContent='⭐ '+score;countEls[1].textContent=counts[1];countEls[10].textContent=counts[10];countEls[100].textContent=counts[100]}
 function updateButtons(){regroup1.classList.toggle('ready',counts[1]>=10);regroup10.classList.toggle('ready',counts[10]>=10)}
-function regroupOnes(){
- if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;history.push({type:'reg1'});updateHud();updateButtons();instruction.textContent='✨ 10 آحاد تحولت إلى عشرة واحدة';checkFinish()
-}
-function regroupTens(){
- if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;history.push({type:'reg10'});updateHud();updateButtons();instruction.textContent='✨ 10 عشرات تحولت إلى مئة واحدة';checkFinish()
-}
-function undo(){
- const a=history.pop();if(!a)return;
- if(a.type==='collect'){a.obj.userData.collected=false;counts[a.value]--;score=Math.max(0,score-2);arrangeBoth();checkAll()}
- if(a.type==='reg1'){counts[1]+=10;counts[10]--;score=Math.max(0,score-5)}
- if(a.type==='reg10'){counts[10]+=10;counts[100]--;score=Math.max(0,score-5)}
- updateHud();updateButtons();instruction.textContent='↶ تم التراجع عن آخر حركة'
-}
-function checkFinish(){
- const all=done[1]&&done[2];if(all&&counts[100]===4&&counts[10]===1&&counts[1]===4){clearInterval(timer);setTimeout(()=>endGame(true),350)}
-}
-function endGame(success){
+function checkAll(){if(objects.every(o=>o.userData.collected)){hint.textContent='✅ جُمعت قطع الشهرين — الآن أعيدي التجميع';checkFinish()}}
+function regroupOnes(){if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;updateHud();updateButtons();hint.textContent='✨ 10 آحاد أصبحت عشرة واحدة';checkFinish()}
+function regroupTens(){if(counts[10]<10)return;counts[10]-=10;counts[100]++;score+=5;updateHud();updateButtons();hint.textContent='✨ 10 عشرات أصبحت مئة واحدة';checkFinish()}
+function checkFinish(){if(objects.every(o=>o.userData.collected)&&counts[100]===4&&counts[10]===1&&counts[1]===4){clearInterval(timer);setTimeout(endGame,350)}}
+function endGame(){
  hud.style.display='none';finish.style.display='flex';
- document.getElementById('finishTitle').textContent=success?'أحسنتِ!':'انتهى الوقت';
- document.getElementById('finishText').textContent=success?'جمعتِ العلب وأعدتِ التجميع بشكل صحيح.':'يمكنكِ إعادة المحاولة لتحسين نتيجتك.';
- document.getElementById('finalResult').textContent=success?'414 علبة':'حاولي مرة أخرى';
  const used=150-timeLeft,mm=String(Math.floor(used/60)).padStart(2,'0'),ss=String(used%60).padStart(2,'0');
  document.getElementById('finalTime').textContent='⏱ '+mm+':'+ss;document.getElementById('finalErrors').textContent='✖ '+errors+' أخطاء';document.getElementById('finalScore').textContent='⭐ '+score
 }
-function startTimer(){
- clearInterval(timer);timeLeft=150;renderTime();timer=setInterval(()=>{timeLeft--;renderTime();if(timeLeft<=0){clearInterval(timer);endGame(false)}},1000)
-}
 function renderTime(){const m=String(Math.floor(timeLeft/60)).padStart(2,'0'),s=String(timeLeft%60).padStart(2,'0');timerEl.textContent='⏱ '+m+':'+s}
 function reset(){
- counts={1:0,10:0,100:0};done={1:false,2:false};score=0;errors=0;history=[];updateHud();updateButtons();build();startTimer()
+ counts={1:0,10:0,100:0};score=0;errors=0;timeLeft=150;updateHud();updateButtons();build();clearInterval(timer);renderTime();
+ timer=setInterval(()=>{timeLeft--;renderTime();if(timeLeft<=0){clearInterval(timer);finish.style.display='flex';hud.style.display='none';document.getElementById('finishTitle').textContent='انتهى الوقت';document.getElementById('finishText').textContent='أعيدي المحاولة واكملي التجميع حتى تصلي إلى 414.'}},1000)
 }
-regroup1.onclick=regroupOnes;regroup10.onclick=regroupTens;document.getElementById('undo').onclick=undo;document.getElementById('help').onclick=()=>helpBox.style.display='flex';document.getElementById('closeHelp').onclick=()=>helpBox.style.display='none';
+regroup1.onclick=regroupOnes;regroup10.onclick=regroupTens;
 document.getElementById('startBtn').onclick=async()=>{hideErr();try{await openCamera();if(!renderer)initThree();start.style.display='none';finish.style.display='none';hud.style.display='block';reset()}catch(e){showErr('لم تفتح الكاميرا. افتحي الرابط في Safari أو Chrome واسمحي باستخدام الكاميرا ثم أعيدي المحاولة.')}};
 document.getElementById('again').onclick=()=>{finish.style.display='none';hud.style.display='block';reset()};
 function animate(){requestAnimationFrame(animate);renderer&&renderer.render(scene,camera)}
