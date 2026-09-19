@@ -56,7 +56,7 @@ button{font:inherit}
     <h1>♻️ أصدقاء البيئة</h1>
     <p>يجمع فريق أصدقاء البيئة الزجاجات الفارغة لإعادة تدويرها. جمع الفريق ١٧٨ زجاجة في الشهر الأول و٢٣٦ زجاجة في الشهر الثاني.</p>
     <div class="eq">178 + <span>236</span></div>
-    <p style="font-size:13px">وجهي الكاميرا نحو الطاولة، ثم اسحبي القطع إلى المئات والعشرات والآحاد.</p>
+    <p style="font-size:13px">وجهي الكاميرا نحو الطاولة. ستظهر القيم ١٠٠، ٧٠، ٨، ٢٠٠، ٣٠، ٦؛ ضعي كل قيمة في منزلتها الصحيحة.</p>
     <button id="startBtn" class="primary">ابدئي النشاط بالكاميرا</button>
   </div>
 </div>
@@ -73,7 +73,7 @@ button{font:inherit}
     <div class="month two"><small>الشهر الثاني</small><b>٢٣٦</b></div>
   </div>
 
-  <div id="hint">اسحبي الصندوق أو الحزمة أو العلبة إلى مكانها الصحيح</div>
+  <div id="hint">ضعي ١٠٠ و٢٠٠ في المئات، ٧٠ و٣٠ في العشرات، و٨ و٦ في الآحاد</div>
 
   <div class="zones">
     <div id="z100" class="zone h"><div class="zicon">♻️</div><div class="zname">المئات</div><div class="zval">١٠٠</div><div id="c100" class="zcount">٠</div><div class="target"></div></div>
@@ -137,19 +137,19 @@ function crate(q,month){
  for(let z=-1;z<=1;z++)for(let x=-2;x<=2;x++){const c=can(0xe4eaed,.40);c.position.set(x*.10,.08,z*.11);g.add(c)}
  const box=new THREE.Mesh(new THREE.BoxGeometry(.66,.36,.52),new THREE.MeshStandardMaterial({color:month===1?0x1c9658:0x43b979,roughness:.48,transparent:true,opacity:.95}));box.position.y=-.14;box.castShadow=true;g.add(box);
  for(let i=-2;i<=2;i++){const sl=new THREE.Mesh(new THREE.BoxGeometry(.06,.34,.55),mat(0x147946,.45));sl.position.set(i*.14,-.14,0);g.add(sl)}
- const l=label('١٠٠ × '+ar(q),'#d9f5e6','#2d6b4e',.70);l.position.set(0,.46,.04);g.add(l);tag(g,100,q,month);return g;
+ const l=label(ar(100*q),'#d9f5e6','#2d6b4e',.76);l.position.set(0,.46,.04);g.add(l);tag(g,100,q,month);return g;
 }
 function bundle(q,month){
  const g=new THREE.Group();
  [[-.17,0,-.09],[0,0,-.09],[.17,0,-.09],[-.085,0,.10],[.085,0,.10]].forEach(p=>{const c=can(month===1?0x367fd0:0x559de9,.72);c.position.set(...p);g.add(c)});
  const band=new THREE.Mesh(new THREE.BoxGeometry(.53,.11,.34),mat(0xc79d62,.55));band.position.y=-.03;g.add(band);
- const l=label('١٠ × '+ar(q),'#dcecff','#325e90',.69);l.position.set(0,.36,.04);g.add(l);tag(g,10,q,month);return g;
+ const l=label(ar(10*q),'#dcecff','#325e90',.76);l.position.set(0,.36,.04);g.add(l);tag(g,10,q,month);return g;
 }
 function single(q,month){
  const g=new THREE.Group();g.add(can(month===1?0xdf547c:0xec789c,1.12));
- const l=label('١ × '+ar(q),'#ffe1ec','#8c3b5e',.65);l.position.set(0,.34,.04);g.add(l);tag(g,1,q,month);return g;
+ const l=label(ar(q),'#ffe1ec','#8c3b5e',.76);l.position.set(0,.34,.04);g.add(l);tag(g,1,q,month);return g;
 }
-function tag(g,value,qty,month){g.userData={value,qty,month,done:false,home:new THREE.Vector3()};g.traverse(c=>c.userData.dragRoot=g)}
+function tag(g,value,qty,month){g.userData={value,qty,month,exact:value*qty,done:false,home:new THREE.Vector3()};g.traverse(c=>c.userData.dragRoot=g)}
 function init3(){
  renderer=new THREE.WebGLRenderer({canvas:cvs,alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;
  scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,100);
@@ -170,10 +170,23 @@ function getRoot(o){let n=o;while(n){if(n.userData?.dragRoot)return n.userData.d
 function plane(){const q=new THREE.Quaternion();root.getWorldQuaternion(q);const n=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();const p=new THREE.Vector3();root.localToWorld(p);return new THREE.Plane().setFromNormalAndCoplanarPoint(n,p)}
 function down(e){e.preventDefault();point(e.clientX,e.clientY);ray.setFromCamera(pointer,camera);const h=ray.intersectObjects(items.filter(o=>o.visible&&!o.userData.done),true);if(!h.length)return;drag=getRoot(h[0].object);drag.scale.multiplyScalar(1.08);dragPlane=plane();const w=new THREE.Vector3();if(ray.ray.intersectPlane(dragPlane,w)){root.worldToLocal(w);dragOff.copy(drag.position).sub(w)}}
 function move(e){if(!drag)return;e.preventDefault();point(e.clientX,e.clientY);ray.setFromCamera(pointer,camera);const w=new THREE.Vector3();if(!ray.ray.intersectPlane(dragPlane,w))return;root.worldToLocal(w);w.add(dragOff);drag.position.x=THREE.MathUtils.clamp(w.x,-2.1,2.1);drag.position.y=THREE.MathUtils.clamp(w.y,-1.35,1.25);const z=zoneAt(e.clientX,e.clientY);Object.values(zones).forEach(x=>x.classList.remove('hot'));if(z)zones[z].classList.add('hot')}
-function up(e){Object.values(zones).forEach(x=>x.classList.remove('hot'));if(!drag)return;const d=drag;drag=null;d.scale.divideScalar(1.08);const z=zoneAt(e.clientX,e.clientY);if(z){if(+d.userData.value===+z)collect(d,+z);else{errors++;score=Math.max(0,score-1);update();hint.textContent='❌ هذا المكان غير صحيح، حاولي مرة أخرى';d.position.copy(d.userData.home);shake(d)}}else d.position.copy(d.userData.home)}
+function up(e){Object.values(zones).forEach(x=>x.classList.remove('hot'));if(!drag)return;const d=drag;drag=null;d.scale.divideScalar(1.08);const z=zoneAt(e.clientX,e.clientY);if(z){
+    if(+d.userData.value===+z)collect(d,+z);
+    else{
+      errors++;score=Math.max(0,score-1);update();
+      const place=d.userData.value===100?'المئات':d.userData.value===10?'العشرات':'الآحاد';
+      hint.textContent='❌ '+ar(d.userData.exact)+' تمثل '+place+'، لذلك لا تُقبل هنا';
+      d.position.copy(d.userData.home);shake(d)
+    }
+  }else d.position.copy(d.userData.home)}
 function zoneAt(x,y){for(const [v,z] of Object.entries(zones)){const r=z.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return v}return null}
 function shake(o){const x=o.position.x;let i=0;const t=setInterval(()=>{o.position.x=x+(i%2?-.07:.07);if(++i>5){clearInterval(t);o.position.x=x}},35)}
-function collect(o,v){o.userData.done=true;counts[v]+=o.userData.qty;score+=3;update();buttons();hint.textContent='✅ أحسنتِ! واصلي';o.visible=false;check()}
+function collect(o,v){
+    o.userData.done=true;counts[v]+=o.userData.qty;score+=3;update();buttons();
+    const place=v===100?'المئات':v===10?'العشرات':'الآحاد';
+    hint.textContent='✅ '+ar(o.userData.exact)+' في '+place+' — أحسنتِ!';
+    o.visible=false;check()
+  }
 function update(){countsEl[100].textContent=ar(counts[100]);countsEl[10].textContent=ar(counts[10]);countsEl[1].textContent=ar(counts[1]);scoreEl.textContent='⭐ '+ar(score)}
 function buttons(){r1.classList.toggle('show',counts[1]>=10);r10.classList.toggle('show',counts[10]>=10)}
 function regroup1(){if(counts[1]<10)return;counts[1]-=10;counts[10]++;score+=5;update();buttons();hint.textContent='✨ ١٠ آحاد أصبحت عشرة واحدة';check()}
